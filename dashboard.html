@@ -181,7 +181,7 @@
       <!-- Menú desplegable -->
       <div class="dropdown-menu" id="dropdownMenu">
         <div id="userEmail">cargando...</div>
-        <button class="btn-admin" id="openAdmin">Abrir admin</button>
+        <button class="btn-admin" id="openAdmin" style="display:none;">Abrir admin</button>
         <button class="btn-logout" id="logoutBtn">Cerrar sesión</button>
       </div>
     </div>
@@ -234,12 +234,7 @@
   let allHacks = {};
   let allUsersCount = null;
 
-  // Mostrar/ocultar menú
-  menuToggle.addEventListener('click', () => {
-    dropdownMenu.classList.toggle('show');
-  });
-
-  // Cierra el menú si haces click fuera
+  menuToggle.addEventListener('click', () => dropdownMenu.classList.toggle('show'));
   document.addEventListener('click', (e)=>{
     if (!dropdownMenu.contains(e.target) && e.target !== menuToggle){
       dropdownMenu.classList.remove('show');
@@ -258,6 +253,19 @@
       totalUsersEl.textContent = `Usuarios: ${allUsersCount}`;
     } catch (e) {
       totalUsersEl.textContent = `Usuarios: —`;
+    }
+
+    // 🔑 Verificar autorización del usuario
+    try {
+      const userSnap = await get(ref(db, 'users/' + user.uid));
+      if (userSnap.exists() && userSnap.val().authorized) {
+        openAdminBtn.style.display = "block"; // mostrar botón admin solo si autorizado
+      } else {
+        openAdminBtn.style.display = "none";  // ocultar si no es admin
+      }
+    } catch (e) {
+      console.error("Error leyendo autorización:", e);
+      openAdminBtn.style.display = "none";
     }
   });
 
@@ -385,5 +393,6 @@
 
   renderOverviewAndResults();
 </script>
+
 </body>
 </html>
