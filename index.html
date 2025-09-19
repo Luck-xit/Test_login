@@ -3,80 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Login / Registro</title>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyD9_Wps61TDrx6PVfKgzvgoQLGlIRrzSaA",
-      authDomain: "weblogin-bbd5f.firebaseapp.com",
-      databaseURL: "https://weblogin-bbd5f-default-rtdb.firebaseio.com",
-      projectId: "weblogin-bbd5f",
-      storageBucket: "weblogin-bbd5f.firebasestorage.app",
-      messagingSenderId: "446557224878",
-      appId: "1:446557224878:web:0c626cf886d4ae9ad9523f",
-      measurementId: "G-33G9QVHQGQ"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const usernameInput = document.getElementById("username");
-      const emailInput = document.getElementById("email");
-      const passwordInput = document.getElementById("password");
-      const registerBtn = document.getElementById("registerBtn");
-      const loginBtn = document.getElementById("loginBtn");
-      const msg = document.getElementById("message");
-
-      // Registro
-      registerBtn.addEventListener("click", async () => {
-        const username = usernameInput.value.trim();
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-        if (!username || !email || !password) {
-          msg.textContent = "⚠️ Llena todos los campos";
-          return;
-        }
-
-        try {
-          const cred = await createUserWithEmailAndPassword(auth, email, password);
-          await set(ref(db, "users/" + cred.user.uid), { username, email });
-          msg.textContent = "✅ Registro exitoso";
-          window.location.href = "https://luck-xit.github.io/Test_boart/";
-        } catch (err) {
-          msg.textContent = "❌ " + err.message;
-        }
-      });
-
-      // Login
-      loginBtn.addEventListener("click", async () => {
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-        if (!email || !password) {
-          msg.textContent = "⚠️ Llena todos los campos";
-          return;
-        }
-
-        try {
-          await signInWithEmailAndPassword(auth, email, password);
-          msg.textContent = "✅ Sesión iniciada";
-          window.location.href = "https://luck-xit.github.io/Test_boart/";
-        } catch (err) {
-          msg.textContent = "❌ " + err.message;
-        }
-      });
-
-      // Ya logueado → redirige
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          window.location.href = "https://luck-xit.github.io/Test_boart/";
-        }
-      });
-    });
-  </script>
   <style>
     body {
       margin:0; height:100vh; display:flex; justify-content:center; align-items:center;
@@ -100,5 +26,76 @@
     <button id="loginBtn" class="btn">Iniciar Sesión</button>
     <p id="message" class="msg"></p>
   </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD9_Wps61TDrx6PVfKgzvgoQLGlIRrzSaA",
+      authDomain: "weblogin-bbd5f.firebaseapp.com",
+      databaseURL: "https://weblogin-bbd5f-default-rtdb.firebaseio.com",
+      projectId: "weblogin-bbd5f",
+      storageBucket: "weblogin-bbd5f.firebasestorage.app",
+      messagingSenderId: "446557224878",
+      appId: "1:446557224878:web:0c626cf886d4ae9ad9523f",
+      measurementId: "G-33G9QVHQGQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const usernameInput = document.getElementById("username");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const registerBtn = document.getElementById("registerBtn");
+    const loginBtn = document.getElementById("loginBtn");
+    const msg = document.getElementById("message");
+
+    // Registro
+    registerBtn.addEventListener("click", async () => {
+      const username = usernameInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      if (!username || !email || !password) {
+        msg.textContent = "⚠️ Llena todos los campos";
+        return;
+      }
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await set(ref(db, "users/" + cred.user.uid), { username, email });
+        msg.textContent = "✅ Registro exitoso";
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        msg.textContent = "❌ " + err.message;
+      }
+    });
+
+    // Login
+    loginBtn.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      if (!email || !password) {
+        msg.textContent = "⚠️ Llena todos los campos";
+        return;
+      }
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        msg.textContent = "✅ Sesión iniciada";
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        msg.textContent = "❌ " + err.message;
+      }
+    });
+
+    // Ya logueado → redirige
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "dashboard.html";
+      }
+    });
+  </script>
 </body>
 </html>
