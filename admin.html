@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin — Luck modz</title>
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --accent:#2575fc; --muted:#9aa6bf; --glass: rgba(255,255,255,0.04); --success:#1abc9c;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Arial,sans-serif;
+    background: linear-gradient(180deg,#071228 0%, #0b1830 100%);
+    color:#e6eef6;
+    min-height:100vh;
+  }
+
+  header{
+    display:flex;
+    gap:16px;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 20px;
+    border-bottom:1px solid rgba(255,255,255,0.03);
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+  }
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{
+    width:44px;height:44px;border-radius:8px;
+    background:linear-gradient(135deg,var(--accent),#6a11cb);
+    display:flex;align-items:center;justify-content:center;font-weight:700;
+    box-shadow:0 6px 18px rgba(37,117,252,0.15);
+  }
+  .brand h1{font-size:18px;margin:0}
+  .header-actions{display:flex;gap:12px;align-items:center}
+  .user-bubble{padding:6px 10px;border-radius:10px;background:rgba(255,255,255,0.02);color:var(--muted)}
+  .btn {padding:8px 12px;border-radius:10px;border:0;background:var(--accent);color:white;cursor:pointer;}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+  .btn.danger{background:#e74c3c;color:white}
+
+  main{max-width:1200px;margin:20px auto;padding:18px;display:grid;grid-template-columns:360px 1fr;gap:20px}
+  /* left column (forms & metrics) */
+  .panel {
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);
+  }
+  .panel h2{margin:6px 0 12px;font-size:16px}
+  label{display:block;font-size:13px;color:var(--muted);margin-top:8px}
+  input[type="text"], input[type="url"], input[type="number"], textarea, select {
+    width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:6px;
+  }
+  textarea{min-height:90px;resize:vertical}
+  .row{display:flex;gap:8px}
+  .row .col{flex:1}
+
+  .small{font-size:13px;color:var(--muted);margin-top:6px}
+  .actions{display:flex;gap:8px;margin-top:12px}
+  .actions .btn{flex:1}
+
+  /* right column (list) */
+  .list {display:flex;flex-direction:column;gap:12px;}
+  .hack {
+    display:flex;gap:12px;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.01), transparent);
+    border:1px solid rgba(255,255,255,0.02);
+  }
+  .thumb{width:92px;height:64px;border-radius:8px;flex:0 0 92px;background:#071427;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .meta{flex:1;min-width:0}
+  .meta h3{margin:0;font-size:15px}
+  .meta p{margin:6px 0 0;font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .meta .sub{font-size:12px;color:var(--muted);margin-top:6px}
+  .controls-hack{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+  .controls-hack button{padding:6px 8px;border-radius:8px;border:0;cursor:pointer}
+  .edit{background:rgba(37,117,252,0.12);color:var(--accent)}
+  .del{background:rgba(231,76,60,0.12);color:#e74c3c}
+
+  .search-admin{margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+
+  footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
+  @media (max-width:980px){
+    main{grid-template-columns:1fr; padding:12px}
+  }
+
+  /* toast */
+  .toast{position:fixed;right:20px;bottom:20px;background:#0f1724;border:1px solid rgba(255,255,255,0.06);padding:10px 14px;border-radius:10px;color:var(--muted);box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">LM</div>
+      <div>
+        <h1>Admin — Luck modz</h1>
+        <div style="font-size:12px;color:var(--muted)">Panel de administración — publica hacks al dashboard</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="user-bubble" id="adminEmail">cargando...</div>
+      <button class="btn ghost" id="backToDash">Ir al Dashboard</button>
+      <button class="btn danger" id="signOutBtn">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- LEFT: Formulario y métricas -->
+    <div class="panel">
+      <h2 id="formTitle">Publicar nuevo hack</h2>
+
+      <!-- Formulario hack -->
+      <label>Título</label>
+      <input id="title" type="text" placeholder="Ej: Mod Menu Pro" />
+      <label>Juego</label>
+      <input id="game" type="text" placeholder="Ej: Free Fire" />
+      <label>Categoría</label>
+      <input id="category" type="text" placeholder="Ej: Aimbot, UI, Scripts" />
+      <label>Descripción</label>
+      <textarea id="description" placeholder="Descripción corta del hack"></textarea>
+      <label>Link de imagen (URL)</label>
+      <input id="imageURL" type="url" placeholder="https://...jpg (si está vacío usará 'No imagen')" />
+      <div class="small">Previsualización:</div>
+      <div class="thumb" id="previewThumb"><img src="" alt="preview" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=200 height=120><rect width=100% height=100% fill=%230b1220 /><text x=50% y=50% fill=%23ffffff dominant-baseline=middle text-anchor=middle font-size=14>No imagen</text></svg>'" /></div>
+
+      <label>Link de descarga</label>
+      <input id="downloadURL" type="url" placeholder="https://... (link de descarga)" />
+      <label>Link de video del autor (opcional)</label>
+      <input id="ownerVideoURL" type="url" placeholder="https://youtube.com/..." />
+      <label>Derechos / Notas</label>
+      <input id="rights" type="text" placeholder="Ej: Free para uso personal" />
+      <label>Publicado por</label>
+      <input id="createdBy" type="text" placeholder="Nombre o email" />
+
+      <div class="actions">
+        <button class="btn" id="saveHackBtn">Publicar</button>
+        <button class="btn ghost" id="resetFormBtn">Limpiar</button>
+      </div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+      <h2>Métricas (dashboard)</h2>
+      <label>Visitantes</label>
+      <input id="visitantesInput" type="number" placeholder="0" />
+      <label>Cliqueos</label>
+      <input id="cliqueosInput" type="number" placeholder="0" />
+      <label>Tiempo (ej: 1h 30m)</label>
+      <input id="tiempoInput" type="text" placeholder="0h 0m" />
+      <div class="actions">
+        <button class="btn" id="saveMetricsBtn">Actualizar métricas</button>
+        <button class="btn ghost" id="loadMetricsBtn">Cargar métricas actuales</button>
+      </div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+      <h2>Estadísticas</h2>
+      <div class="small">Usuarios registrados: <strong id="usersCount">—</strong></div>
+      <div class="small">Total hacks: <strong id="totalHacks">—</strong></div>
+    </div>
+
+    <!-- RIGHT: Lista de hacks -->
+    <div class="panel">
+      <h2>Hacks publicados</h2>
+
+      <input id="searchAdmin" class="search-admin" placeholder="Buscar por título o juego..." />
+
+      <div id="hacksList" class="list"></div>
+    </div>
+  </main>
+
+  <footer>© Luck modz — 2024 - 2025</footer>
+
+  <div id="toast" class="toast" style="display:none"></div>
+
+<script type="module">
+  // IMPORTS (mismo estilo que tu dashboard)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+  import {
+    getDatabase, ref, onValue, push, set, remove, update, get
+  } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+  // Misma configuración que tu dashboard (la conservo exactamente)
+  const firebaseConfig = {
+    apiKey: "AIzaSyD9_Wps61TDrx6PVfKgzvgoQLGlIRrzSaA",
+    authDomain: "weblogin-bbd5f.firebaseapp.com",
+    databaseURL: "https://weblogin-bbd5f-default-rtdb.firebaseio.com",
+    projectId: "weblogin-bbd5f",
+    storageBucket: "weblogin-bbd5f.firebasestorage.app",
+    messagingSenderId: "446557224878",
+    appId: "1:446557224878:web:0c626cf886d4ae9ad9523f",
+    measurementId: "G-33G9QVHQGQ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  // DOM
+  const adminEmailEl = document.getElementById('adminEmail');
+  const signOutBtn = document.getElementById('signOutBtn');
+  const backToDash = document.getElementById('backToDash');
+
+  const titleIn = document.getElementById('title');
+  const gameIn = document.getElementById('game');
+  const categoryIn = document.getElementById('category');
+  const descriptionIn = document.getElementById('description');
+  const imageURLIn = document.getElementById('imageURL');
+  const previewThumb = document.querySelector('#previewThumb img');
+  const downloadURLIn = document.getElementById('downloadURL');
+  const ownerVideoURLIn = document.getElementById('ownerVideoURL');
+  const rightsIn = document.getElementById('rights');
+  const createdByIn = document.getElementById('createdBy');
+  const saveHackBtn = document.getElementById('saveHackBtn');
+  const resetFormBtn = document.getElementById('resetFormBtn');
+
+  const visitantesInput = document.getElementById('visitantesInput');
+  const cliqueosInput = document.getElementById('cliqueosInput');
+  const tiempoInput = document.getElementById('tiempoInput');
+  const saveMetricsBtn = document.getElementById('saveMetricsBtn');
+  const loadMetricsBtn = document.getElementById('loadMetricsBtn');
+
+  const usersCountEl = document.getElementById('usersCount');
+  const totalHacksEl = document.getElementById('totalHacks');
+
+  const hacksList = document.getElementById('hacksList');
+  const searchAdmin = document.getElementById('searchAdmin');
+
+  const toastEl = document.getElementById('toast');
+
+  // Estado
+  let editingId = null;
+  let allHacks = {};
+
+  // utils
+  function showToast(msg, ms=2200){
+    toastEl.textContent = msg;
+    toastEl.style.display = 'block';
+    setTimeout(()=> toastEl.style.display='none', ms);
+  }
+
+  function clearForm(){
+    editingId = null;
+    document.getElementById('formTitle').textContent = 'Publicar nuevo hack';
+    titleIn.value = ''; gameIn.value=''; categoryIn.value=''; descriptionIn.value=''; imageURLIn.value=''; downloadURLIn.value=''; ownerVideoURLIn.value=''; rightsIn.value=''; createdByIn.value = (auth.currentUser && auth.currentUser.email) || '';
+    previewThumb.src = '';
+    saveHackBtn.textContent = 'Publicar';
+  }
+
+  // auth
+  onAuthStateChanged(auth, async (user)=>{
+    if (!user){
+      // si no esta autenticado redirige
+      window.location.href = 'index.html';
+      return;
+    }
+    adminEmailEl.textContent = user.email;
+    createdByIn.value = user.email;
+    // cargar contadores
+    await loadUsersCount();
+    // escuchar métricas y hacks
+    listenMetrics();
+    listenHacks();
+  });
+
+  signOutBtn.addEventListener('click', async ()=>{
+    try {
+      await signOut(auth);
+      window.location.href = 'index.html';
+    } catch(e){
+      console.error(e);
+      showToast('Error cerrando sesión');
+    }
+  });
+
+  backToDash.addEventListener('click', ()=> window.location.href='dashboard.html');
+
+  // MÉTRICAS
+  function listenMetrics(){
+    const metricsRef = ref(db, 'dashboard');
+    onValue(metricsRef, (snap)=>{
+      const data = snap.val() || {};
+      visitantesInput.value = data.visitantes ?? 0;
+      cliqueosInput.value = data.cliqueos ?? 0;
+      tiempoInput.value = data.tiempo ?? '0h 0m';
+    });
+  }
+
+  saveMetricsBtn.addEventListener('click', async ()=>{
+    const visitantes = parseInt(visitantesInput.value) || 0;
+    const cliqueos = parseInt(cliqueosInput.value) || 0;
+    const tiempo = (tiempoInput.value || '0h 0m').trim();
+    try {
+      await set(ref(db, 'dashboard/'), { visitantes, cliqueos, tiempo });
+      showToast('Métricas actualizadas ✅');
+    } catch(e){
+      console.error(e);
+      showToast('Error guardando métricas');
+    }
+  });
+
+  loadMetricsBtn.addEventListener('click', ()=>{
+    // simplemente reload (onValue actualiza inputs)
+    showToast('Métricas cargadas');
+  });
+
+  // USUARIOS
+  async function loadUsersCount(){
+    try {
+      const snap = await get(ref(db, 'users'));
+      const cnt = snap.exists() ? Object.keys(snap.val()).length : 0;
+      usersCountEl.textContent = cnt;
+    } catch(e){
+      usersCountEl.textContent = '—';
+    }
+  }
+
+  // HACKS: LISTAR EN TIEMPO REAL
+  function listenHacks(){
+    const hacksRef = ref(db, 'hacks');
+    onValue(hacksRef, (snap)=>{
+      const val = snap.val() || {};
+      allHacks = val;
+      renderHacksList();
+      totalHacksEl.textContent = Object.keys(val).length;
+    });
+  }
+
+  function renderHacksList(filter=''){
+    hacksList.innerHTML = '';
+    const arr = Object.entries(allHacks || {});
+    const q = (filter||'').trim().toLowerCase();
+    // ordenar por timestamp desc
+    arr.sort((a,b)=>{
+      const ta = a[1].timestamp||0;
+      const tb = b[1].timestamp||0;
+      return tb - ta;
+    });
+
+    if (arr.length === 0){
+      hacksList.innerHTML = `<div class="small" style="color:var(--muted)">No hay hacks publicados.</div>`;
+      return;
+    }
+
+    arr.forEach(([id, h])=>{
+      const title = h.title || 'Sin título';
+      const game = h.game || 'Sin juego';
+      const cat = h.category || 'Sin categoría';
+      const desc = h.description || '';
+      const img = h.imageURL || '';
+      // filtro
+      if (q && !(title.toLowerCase().includes(q) || game.toLowerCase().includes(q) || (h.createdBy||'').toLowerCase().includes(q))) return;
+
+      const div = document.createElement('div');
+      div.className = 'hack';
+      div.innerHTML = `
+        <div class="thumb"><img src="${escapeAttr(img)}" alt="${escapeAttr(title)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=200 height=120><rect width=100% height=100% fill=%230b1220 /><text x=50% y=50% fill=%23ffffff dominant-baseline=middle text-anchor=middle font-size=14>No imagen</text></svg>'" /></div>
+        <div class="meta">
+          <h3>${escapeHtml(title)}</h3>
+          <p>${escapeHtml((desc||'').slice(0,140))}</p>
+          <div class="sub">Juego: ${escapeHtml(game)} • ${escapeHtml(cat)} • Por: ${escapeHtml(h.createdBy||'—')}</div>
+          <div class="sub" style="margin-top:6px;color:var(--muted)">ID: ${id} • ${h.timestamp ? new Date(h.timestamp).toLocaleString() : ''}</div>
+        </div>
+        <div class="controls-hack">
+          <button class="edit" data-id="${id}">Editar</button>
+          <button class="del" data-id="${id}">Eliminar</button>
+        </div>
+      `;
+      hacksList.appendChild(div);
+    });
+
+    // listeners botones (delegación simple)
+    hacksList.querySelectorAll('button.edit').forEach(b=>{
+      b.onclick = () => startEditHack(b.dataset.id);
+    });
+    hacksList.querySelectorAll('button.del').forEach(b=>{
+      b.onclick = async () => {
+        const id = b.dataset.id;
+        if (!confirm('¿Eliminar este hack? Esto no se puede deshacer')) return;
+        try {
+          await remove(ref(db, 'hacks/' + id));
+          showToast('Hack eliminado');
+        } catch(e){
+          console.error(e);
+          showToast('Error al eliminar');
+        }
+      };
+    });
+  }
+
+  // crear / actualizar hack
+  saveHackBtn.addEventListener('click', async ()=>{
+    const title = (titleIn.value||'').trim();
+    const game = (gameIn.value||'').trim();
+    const category = (categoryIn.value||'').trim();
+    const description = (descriptionIn.value||'').trim();
+    const imageURL = (imageURLIn.value||'').trim();
+    const downloadURL = (downloadURLIn.value||'').trim();
+    const ownerVideoURL = (ownerVideoURLIn.value||'').trim();
+    const rights = (rightsIn.value||'').trim();
+    const createdBy = (createdByIn.value||'').trim() || (auth.currentUser && auth.currentUser.email) || 'Anónimo';
+
+    if (!title || !game || !downloadURL) {
+      showToast('Título, Juego y Link de descarga son obligatorios');
+      return;
+    }
+
+    const payload = {
+      title, game, category, description, imageURL, downloadURL, ownerVideoURL, rights, createdBy,
+      timestamp: Date.now()
+    };
+
+    try {
+      if (editingId){
+        // actualizar (mantener timestamp original? actualizamos timestamp para orden reciente)
+        await update(ref(db, 'hacks/' + editingId), payload);
+        showToast('Hack actualizado ✅');
+      } else {
+        // crear
+        const newRef = push(ref(db, 'hacks'));
+        await set(newRef, payload);
+        showToast('Hack publicado ✅');
+      }
+      clearForm();
+    } catch(e){
+      console.error(e);
+      showToast('Error guardando hack');
+    }
+  });
+
+  resetFormBtn.addEventListener('click', clearForm);
+
+  function startEditHack(id){
+    const h = allHacks[id];
+    if (!h) return showToast('Hack no encontrado');
+    editingId = id;
+    document.getElementById('formTitle').textContent = 'Editar hack — ' + id;
+    titleIn.value = h.title || '';
+    gameIn.value = h.game || '';
+    categoryIn.value = h.category || '';
+    descriptionIn.value = h.description || '';
+    imageURLIn.value = h.imageURL || '';
+    previewThumb.src = h.imageURL || '';
+    downloadURLIn.value = h.downloadURL || '';
+    ownerVideoURLIn.value = h.ownerVideoURL || '';
+    rightsIn.value = h.rights || '';
+    createdByIn.value = h.createdBy || (auth.currentUser && auth.currentUser.email) || '';
+    saveHackBtn.textContent = 'Guardar cambios';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // preview de imagen
+  imageURLIn.addEventListener('input', ()=>{
+    previewThumb.src = imageURLIn.value || '';
+  });
+
+  // búsqueda admin
+  searchAdmin.addEventListener('input', (e)=>{
+    renderHacksList(e.target.value);
+  });
+
+  // helper escapes (sencillas)
+  function escapeHtml(s){
+    if (!s) return '';
+    return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  }
+  function escapeAttr(s){
+    if (!s) return '';
+    return String(s).replaceAll('"','%22').replaceAll("'",'%27');
+  }
+
+  // carga inicial
+  clearForm();
+</script>
+</body>
+</html>
