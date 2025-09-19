@@ -3,56 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login / Registro</title>
-  <style>
-    body {
-      margin:0;
-      height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      font-family:Arial, sans-serif;
-      background: linear-gradient(135deg,#6a11cb 0%,#2575fc 100%);
-    }
-    .box {
-      background:#fff;
-      padding:30px;
-      border-radius:15px;
-      box-shadow:0 8px 25px rgba(0,0,0,0.2);
-      width:350px;
-      text-align:center;
-    }
-    input, .btn {
-      width:100%;
-      padding:12px;
-      margin:10px 0;
-      border-radius:10px;
-      font-size:16px;
-    }
-    input { border:1px solid #ddd; }
-    .btn { border:none; cursor:pointer; font-weight:bold; background:#2575fc; color:#fff; }
-    .msg { font-size:14px; color:#666; margin-top:10px; }
-  </style>
+  <title>Registro / Login</title>
 </head>
 <body>
-  <div class="box">
-    <h2>Registro / Login</h2>
-    <input type="text" id="username" placeholder="Nombre de usuario">
-    <input type="email" id="email" placeholder="Correo electrónico">
-    <input type="password" id="password" placeholder="Contraseña">
-    <button id="btnRegister" class="btn">Registrarse</button>
-    <button id="btnLogin" class="btn">Iniciar Sesión</button>
-    <p id="message" class="msg"></p>
-  </div>
+  <h2>Registro</h2>
+  <input type="text" id="username" placeholder="Usuario"><br>
+  <input type="email" id="email" placeholder="Correo"><br>
+  <input type="password" id="password" placeholder="Contraseña"><br>
+  <button id="btnRegister">Registrarse</button>
+
+  <h2>Login</h2>
+  <input type="email" id="loginEmail" placeholder="Correo"><br>
+  <input type="password" id="loginPassword" placeholder="Contraseña"><br>
+  <button id="btnLogin">Ingresar</button>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } 
-      from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getDatabase, ref, set } 
-      from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    // Configuración Firebase (tuya)
+    // 🔹 Tu configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyD9_Wps61TDrx6PVfKgzvgoQLGlIRrzSaA",
       authDomain: "weblogin-bbd5f.firebaseapp.com",
@@ -64,12 +36,10 @@
       measurementId: "G-33G9QVHQGQ"
     };
 
-    // Inicializar Firebase
+    // 🔹 Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
-
-    const msg = document.getElementById("message");
 
     // 🔹 Registro
     async function register(username, email, password) {
@@ -77,16 +47,16 @@
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Guardar en Realtime Database → users/uid
+        // Guardar datos en Realtime DB
         await set(ref(db, 'users/' + user.uid), {
           username: username,
           email: email
         });
 
-        msg.textContent = "✅ Registro exitoso";
-        window.location.href = "dashboard.html";
+        alert("✅ Usuario registrado con éxito");
+        window.location.href = "dashboard.html"; // redirigir al panel
       } catch (error) {
-        msg.textContent = "❌ " + error.message;
+        alert("❌ Error: " + error.message);
       }
     }
 
@@ -94,40 +64,25 @@
     async function login(email, password) {
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        msg.textContent = "✅ Sesión iniciada";
-        window.location.href = "dashboard.html";
+        alert("✅ Login exitoso");
+        window.location.href = "dashboard.html"; // redirigir al panel
       } catch (error) {
-        msg.textContent = "❌ " + error.message;
+        alert("❌ Error: " + error.message);
       }
     }
 
-    // Botones
+    // 🔹 Eventos
     document.getElementById("btnRegister").addEventListener("click", () => {
-      const username = document.getElementById("username").value.trim();
-      const email = document.getElementById("email").value.trim();
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      if (!username || !email || !password) {
-        msg.textContent = "⚠️ Llena todos los campos";
-        return;
-      }
       register(username, email, password);
     });
 
     document.getElementById("btnLogin").addEventListener("click", () => {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      if (!email || !password) {
-        msg.textContent = "⚠️ Llena todos los campos";
-        return;
-      }
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
       login(email, password);
-    });
-
-    // Si ya está logueado, mandarlo al dashboard
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        window.location.href = "dashboard.html";
-      }
     });
   </script>
 </body>
