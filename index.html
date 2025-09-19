@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login con Google</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      font-family: Arial, sans-serif;
+    }
+
+    .box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 350px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .box h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .btn-google {
+      background: #db4437;
+      color: #fff;
+    }
+
+    .btn-save {
+      background: #2575fc;
+      color: #fff;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    #usernameSection {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.9);}
+      to {opacity: 1; transform: scale(1);}
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2 id="title">Inicia Sesión</h2>
+
+    <!-- Botón de Google -->
+    <button id="googleLogin" class="btn btn-google">Continuar con Google</button>
+
+    <!-- Apartado nombre de usuario -->
+    <div id="usernameSection">
+      <h3>Completa tu perfil</h3>
+      <input type="text" id="usernameInput" placeholder="Nombre de usuario">
+      <button id="saveUsername" class="btn btn-save">Guardar</button>
+    </div>
+  </div>
+
+  <script>
+    // 🔥 Configuración de Firebase (de tu panel admin)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCj0DVSi2LKWVEIb0vVBNmBk5kwNKwwJrg",
+      authDomain: "storeacounts-d0ca8.firebaseapp.com",
+      projectId: "storeacounts-d0ca8",
+      databaseURL: "https://storeacounts-d0ca8-default-rtdb.firebaseio.com",
+      storageBucket: "storeacounts-d0ca8.appspot.com",
+      messagingSenderId: "822442149761",
+      appId: "1:822442149761:web:bb1d97c5c5f170ddb10a80"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    const googleBtn = document.getElementById("googleLogin");
+    const usernameSection = document.getElementById("usernameSection");
+    const title = document.getElementById("title");
+
+    // Botón login con Google
+    googleBtn.addEventListener("click", () => {
+      auth.signInWithPopup(provider)
+        .then(result => {
+          console.log("Usuario:", result.user);
+
+          googleBtn.style.display = "none";   // Ocultar botón
+          title.textContent = "Bienvenido";  // Cambiar título
+          usernameSection.style.display = "block"; // Mostrar username box
+        })
+        .catch(error => {
+          console.error("Error en login:", error);
+          alert("Error al iniciar sesión con Google");
+        });
+    });
+
+    // Guardar nombre de usuario (demo)
+    document.getElementById("saveUsername").addEventListener("click", () => {
+      const username = document.getElementById("usernameInput").value;
+      if (username.trim() === "") {
+        alert("Escribe un nombre de usuario");
+        return;
+      }
+      alert("Usuario guardado: " + username);
+      // 🔥 Aquí puedes guardarlo en Realtime Database o Firestore si quieres
+    });
+  </script>
+</body>
+</html>
