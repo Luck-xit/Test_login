@@ -13,6 +13,103 @@
     --muted:#9aa6bf;  
     --glass: rgba(255,255,255,0.04);  
     --success:#1abc9c;  
+    --glow-yellow: #ffeb3b;  
+    --glow-purple: #a855f7;  
+    --glow-blue: #3b82f6;  
+  }  
+  *{box-sizing:border-box}  
+  body{  
+    margin:0;  
+    font-family:Inter,system-ui,Arial,sans-serif;  
+    background: linear-gradient(180deg,#071228 0%, #0b1830 100%);  
+    color:var(--glow-yellow);  
+    text-shadow: 0 0 6px rgba(255, 235, 59, 0.7);  
+    min-height:100vh;  
+  }  
+
+  header{  
+    display:flex;gap:16px;align-items:center;justify-content:space-between;  
+    padding:18px 20px;  
+    border-bottom:1px solid rgba(255,255,255,0.03);  
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);  
+  }  
+
+  .brand h1{font-size:18px;margin:0;color:var(--glow-yellow);text-shadow:0 0 10px var(--glow-yellow);}  
+
+  /* 🔹 Botones con efecto flotante y bordes brillantes */
+  button, .actionsCol a {
+    position:relative;
+    border:2px solid transparent;
+    border-radius:10px;
+    cursor:pointer;
+    transition:all 0.3s ease;
+    z-index:1;
+  }
+  button::before, .actionsCol a::before {
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    padding:2px;
+    background:linear-gradient(135deg, var(--glow-purple), var(--glow-blue));
+    -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+            mask-composite:exclude;
+    z-index:-1;
+  }
+  button:hover, .actionsCol a:hover {
+    transform:translateY(-4px) scale(1.05);
+    box-shadow:0 0 12px var(--glow-blue), 0 0 20px var(--glow-purple);
+  }
+
+  /* 🔹 Tarjetas (categorías y mods) con bordes brillantes */
+  .card, .mod {
+    border:2px solid transparent;
+    border-radius:12px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before, .mod::before {
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    padding:2px;
+    background:linear-gradient(135deg, var(--glow-purple), var(--glow-blue));
+    -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+            mask-composite:exclude;
+    z-index:-1;
+  }
+  .mod:hover {
+    transform:translateY(-4px);
+    box-shadow:0 0 12px var(--glow-purple),0 0 16px var(--glow-blue);
+  }
+
+  /* 🔹 Texto especial */
+  h2, h3, .tags, .rights, .stat, .search::placeholder {
+    color:var(--glow-yellow);
+    text-shadow:0 0 8px rgba(255,235,59,0.6);
+  }
+</style>  
+</head>  
+
+<body>  
+<!doctype html>
+<html lang="es">  
+<head>  
+<meta charset="utf-8" />  
+<meta name="viewport" content="width=device-width,initial-scale=1" />  
+<title>Dashboard - Hacks Gratis</title>  
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">  
+<style>  
+  :root{  
+    --bg:#0f1724;  
+    --card:#0b1220;  
+    --accent:#2575fc;  
+    --muted:#9aa6bf;  
+    --glass: rgba(255,255,255,0.04);  
+    --success:#1abc9c;  
   }  
   *{box-sizing:border-box}  
   body{  
