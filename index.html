@@ -2,9 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Login con Google</title>
+  <title>Registro con Firebase</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <style>
     body {
       margin: 0;
@@ -23,7 +24,6 @@
       box-shadow: 0 8px 25px rgba(0,0,0,0.2);
       text-align: center;
       width: 350px;
-      animation: fadeIn 0.6s ease;
     }
 
     .box h2 {
@@ -32,7 +32,6 @@
     }
 
     .btn {
-      display: inline-block;
       width: 100%;
       padding: 12px;
       margin: 10px 0;
@@ -41,20 +40,6 @@
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .btn-google {
-      background: #db4437;
-      color: #fff;
-    }
-
-    .btn-save {
       background: #2575fc;
       color: #fff;
     }
@@ -68,33 +53,27 @@
       font-size: 16px;
     }
 
-    #usernameSection {
-      display: none;
-    }
-
-    @keyframes fadeIn {
-      from {opacity: 0; transform: scale(0.9);}
-      to {opacity: 1; transform: scale(1);}
+    .msg {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
     }
   </style>
 </head>
 <body>
   <div class="box">
-    <h2 id="title">Inicia Sesión</h2>
+    <h2>Crear Cuenta</h2>
 
-    <!-- Botón de Google -->
-    <button id="googleLogin" class="btn btn-google">Continuar con Google</button>
+    <input type="text" id="username" placeholder="Nombre de usuario">
+    <input type="email" id="email" placeholder="Correo electrónico">
+    <input type="password" id="password" placeholder="Contraseña">
 
-    <!-- Apartado nombre de usuario -->
-    <div id="usernameSection">
-      <h3>Completa tu perfil</h3>
-      <input type="text" id="usernameInput" placeholder="Nombre de usuario">
-      <button id="saveUsername" class="btn btn-save">Guardar</button>
-    </div>
+    <button id="registerBtn" class="btn">Registrarse</button>
+    <p id="message" class="msg"></p>
   </div>
 
   <script>
-    // 🔥 Configuración de Firebase (de tu panel admin)
+    // 🔥 Configuración de Firebase (la misma de tu proyecto)
     const firebaseConfig = {
       apiKey: "AIzaSyCj0DVSi2LKWVEIb0vVBNmBk5kwNKwwJrg",
       authDomain: "storeacounts-d0ca8.firebaseapp.com",
@@ -107,37 +86,36 @@
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
+    const db = firebase.database();
 
-    const googleBtn = document.getElementById("googleLogin");
-    const usernameSection = document.getElementById("usernameSection");
-    const title = document.getElementById("title");
+    const registerBtn = document.getElementById("registerBtn");
+    const msg = document.getElementById("message");
 
-    // Botón login con Google
-    googleBtn.addEventListener("click", () => {
-      auth.signInWithPopup(provider)
-        .then(result => {
-          console.log("Usuario:", result.user);
+    registerBtn.addEventListener("click", () => {
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
 
-          googleBtn.style.display = "none";   // Ocultar botón
-          title.textContent = "Bienvenido";  // Cambiar título
-          usernameSection.style.display = "block"; // Mostrar username box
-        })
-        .catch(error => {
-          console.error("Error en login:", error);
-          alert("Error al iniciar sesión con Google");
-        });
-    });
-
-    // Guardar nombre de usuario (demo)
-    document.getElementById("saveUsername").addEventListener("click", () => {
-      const username = document.getElementById("usernameInput").value;
-      if (username.trim() === "") {
-        alert("Escribe un nombre de usuario");
+      if (!username || !email || !password) {
+        msg.textContent = "⚠️ Llena todos los campos";
         return;
       }
-      alert("Usuario guardado: " + username);
-      // 🔥 Aquí puedes guardarlo en Realtime Database o Firestore si quieres
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          // Guardar username en la base de datos con el UID del usuario
+          return db.ref("users/" + user.uid).set({
+            username: username,
+            email: email
+          });
+        })
+        .then(() => {
+          msg.textContent = "✅ Registro exitoso";
+        })
+        .catch(error => {
+          msg.textContent = "❌ " + error.message;
+        });
     });
   </script>
 </body>
