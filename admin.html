@@ -8,6 +8,7 @@
 <style>
   :root{
     --bg:#0f1724; --card:#0b1220; --accent:#2575fc; --muted:#9aa6bf; --glass: rgba(255,255,255,0.04); --success:#1abc9c;
+    --danger:#e74c3c;
   }
   *{box-sizing:border-box}
   body{
@@ -39,7 +40,7 @@
   .user-bubble{padding:6px 10px;border-radius:10px;background:rgba(255,255,255,0.02);color:var(--muted)}
   .btn {padding:8px 12px;border-radius:10px;border:0;background:var(--accent);color:white;cursor:pointer;}
   .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-  .btn.danger{background:#e74c3c;color:white}
+  .btn.danger{background:var(--danger);color:white}
 
   main{max-width:1200px;margin:20px auto;padding:18px;display:grid;grid-template-columns:360px 1fr;gap:20px}
   /* left column (forms & metrics) */
@@ -60,7 +61,7 @@
   .actions{display:flex;gap:8px;margin-top:12px}
   .actions .btn{flex:1}
 
-  /* right column (list) */
+  /* right column (list + preview) */
   .list {display:flex;flex-direction:column;gap:12px;}
   .hack {
     display:flex;gap:12px;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.01), transparent);
@@ -75,7 +76,7 @@
   .controls-hack{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
   .controls-hack button{padding:6px 8px;border-radius:8px;border:0;cursor:pointer}
   .edit{background:rgba(37,117,252,0.12);color:var(--accent)}
-  .del{background:rgba(231,76,60,0.12);color:#e74c3c}
+  .del{background:rgba(231,76,60,0.12);color:var(--danger)}
 
   .search-admin{margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
 
@@ -83,6 +84,36 @@
   @media (max-width:980px){
     main{grid-template-columns:1fr; padding:12px}
   }
+
+  /* preview card */
+  .preview {
+    margin-top:12px;
+    border-radius:12px;
+    padding:12px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.02);
+  }
+  .preview .preview-thumb{width:100%;height:160px;border-radius:10px;overflow:hidden;background:#071427;display:flex;align-items:center;justify-content:center}
+  .preview .preview-thumb img{width:100%;height:100%;object-fit:cover}
+  .preview h3{margin:8px 0 0}
+  .preview p{color:var(--muted);margin:6px 0 0}
+
+  /* charts */
+  .metrics-charts{display:flex;gap:10px;align-items:center;margin-top:10px}
+  canvas{background:transparent;border-radius:8px}
+
+  /* spinner overlay */
+  .overlay {
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(3,7,18,0.55);z-index:9999;display:none;
+  }
+  .spinner{
+    width:84px;height:84px;border-radius:16px;background:linear-gradient(180deg,#071428,#071a34);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.6);
+  }
+  .dot{width:12px;height:12px;background:var(--accent);border-radius:50%;margin:4px;animation:pop 0.9s infinite}
+  .dot:nth-child(2){animation-delay:0.12s}
+  .dot:nth-child(3){animation-delay:0.24s}
+  @keyframes pop{0%{transform:scale(.6);opacity:.3}50%{transform:scale(1.1);opacity:1}100%{transform:scale(.6);opacity:.3}}
 
   /* toast */
   .toast{position:fixed;right:20px;bottom:20px;background:#0f1724;border:1px solid rgba(255,255,255,0.06);padding:10px 14px;border-radius:10px;color:var(--muted);box-shadow:0 8px 30px rgba(0,0,0,0.6)}
@@ -152,6 +183,14 @@
         <button class="btn ghost" id="loadMetricsBtn">Cargar métricas actuales</button>
       </div>
 
+      <div class="small" style="margin-top:12px">Mini-gráfica</div>
+      <div class="metrics-charts">
+        <canvas id="miniChart" width="300" height="100"></canvas>
+        <div style="min-width:120px">
+          <div class="small">Tiempo: <strong id="timeDisplay">0h 0m</strong></div>
+        </div>
+      </div>
+
       <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
 
       <h2>Estadísticas</h2>
@@ -159,13 +198,21 @@
       <div class="small">Total hacks: <strong id="totalHacks">—</strong></div>
     </div>
 
-    <!-- RIGHT: Lista de hacks -->
+    <!-- RIGHT: Lista de hacks + preview -->
     <div class="panel">
       <h2>Hacks publicados</h2>
 
       <input id="searchAdmin" class="search-admin" placeholder="Buscar por título o juego..." />
 
       <div id="hacksList" class="list"></div>
+
+      <!-- Preview (cómo se verá en el dashboard público) -->
+      <div class="preview" id="livePreview">
+        <div class="preview-thumb"><img id="pvImg" src="" alt="preview" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=400 height=220><rect width=100% height=100% fill=%230b1220 /><text x=50% y=50% fill=%23ffffff dominant-baseline=middle text-anchor=middle font-size=18>No imagen</text></svg>'" /></div>
+        <h3 id="pvTitle">Sin título</h3>
+        <p id="pvDesc" class="small">Descripción corta…</p>
+        <div class="small" id="pvMeta">Categoría • Por: —</div>
+      </div>
     </div>
   </main>
 
@@ -173,15 +220,22 @@
 
   <div id="toast" class="toast" style="display:none"></div>
 
+  <!-- spinner overlay -->
+  <div id="overlay" class="overlay">
+    <div class="spinner">
+      <div style="display:flex">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+    </div>
+  </div>
+
 <script type="module">
-  // IMPORTS (mismo estilo que tu dashboard)
+  // FIREBASE IMPORTS
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-  import {
-    getDatabase, ref, onValue, push, set, remove, update, get
-  } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+  import { getDatabase, ref, onValue, push, set, remove, update, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
-  // Misma configuración que tu dashboard (la conservo exactamente)
+  // config (misma que usaste)
   const firebaseConfig = {
     apiKey: "AIzaSyD9_Wps61TDrx6PVfKgzvgoQLGlIRrzSaA",
     authDomain: "weblogin-bbd5f.firebaseapp.com",
@@ -192,7 +246,6 @@
     appId: "1:446557224878:web:0c626cf886d4ae9ad9523f",
     measurementId: "G-33G9QVHQGQ"
   };
-
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
@@ -228,40 +281,89 @@
   const searchAdmin = document.getElementById('searchAdmin');
 
   const toastEl = document.getElementById('toast');
+  const overlay = document.getElementById('overlay');
+
+  const pvImg = document.getElementById('pvImg');
+  const pvTitle = document.getElementById('pvTitle');
+  const pvDesc = document.getElementById('pvDesc');
+  const pvMeta = document.getElementById('pvMeta');
+
+  const miniChart = document.getElementById('miniChart');
+  const timeDisplay = document.getElementById('timeDisplay');
 
   // Estado
   let editingId = null;
   let allHacks = {};
+  let currentUserProfile = null; // { username, ... }
+  let metrics = { visitantes:0, cliqueos:0, tiempo:'0h 0m' };
 
-  // utils
+  // util
   function showToast(msg, ms=2200){
     toastEl.textContent = msg;
     toastEl.style.display = 'block';
     setTimeout(()=> toastEl.style.display='none', ms);
   }
+  function showOverlay(show=true){
+    overlay.style.display = show ? 'flex' : 'none';
+  }
 
+  function escapeHtml(s){
+    if (!s) return '';
+    return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  }
+  function escapeAttr(s){
+    if (!s) return '';
+    return String(s).replaceAll('"','%22').replaceAll("'",'%27');
+  }
+
+  // Limpiar form
   function clearForm(){
     editingId = null;
     document.getElementById('formTitle').textContent = 'Publicar nuevo hack';
-    titleIn.value = ''; gameIn.value=''; categoryIn.value=''; descriptionIn.value=''; imageURLIn.value=''; downloadURLIn.value=''; ownerVideoURLIn.value=''; rightsIn.value=''; createdByIn.value = (auth.currentUser && auth.currentUser.email) || '';
+    titleIn.value = ''; gameIn.value=''; categoryIn.value=''; descriptionIn.value=''; imageURLIn.value=''; downloadURLIn.value=''; ownerVideoURLIn.value=''; rightsIn.value=''; 
+    createdByIn.value = (currentUserProfile && currentUserProfile.username) ? currentUserProfile.username : (auth.currentUser && auth.currentUser.email) || '';
     previewThumb.src = '';
+    pvImg.src = '';
+    pvTitle.textContent = 'Sin título';
+    pvDesc.textContent = 'Descripción corta…';
+    pvMeta.textContent = 'Categoría • Por: —';
     saveHackBtn.textContent = 'Publicar';
   }
 
-  // auth
+  // AUTH + AUTORIZACIÓN
   onAuthStateChanged(auth, async (user)=>{
     if (!user){
-      // si no esta autenticado redirige
       window.location.href = 'index.html';
       return;
     }
-    adminEmailEl.textContent = user.email;
-    createdByIn.value = user.email;
-    // cargar contadores
-    await loadUsersCount();
-    // escuchar métricas y hacks
-    listenMetrics();
-    listenHacks();
+    adminEmailEl.textContent = (user.email || user.displayName || 'usuario');
+
+    // buscar perfil de usuario (username y autorización)
+    const userRef = ref(db, 'users/' + user.uid);
+    try {
+      const snap = await get(userRef);
+      if (!snap.exists()){
+        showToast('Perfil no encontrado. Contacta al administrador.');
+        // opcional: signOut
+        setTimeout(async ()=> { await signOut(auth); window.location.href='index.html'; }, 1800);
+        return;
+      }
+      const profile = snap.val();
+      currentUserProfile = profile;
+      // autorización: campo `authorized` === true
+      if (!profile.authorized){
+        showToast('No estás autorizado para entrar al admin.');
+        setTimeout(async ()=>{ await signOut(auth); window.location.href='index.html'; }, 1600);
+        return;
+      }
+      // si autorizado, continúa
+      createdByIn.value = profile.username || user.email || '';
+      initAdmin();
+    } catch(e){
+      console.error(e);
+      showToast('Error verificando autorización');
+      setTimeout(async ()=>{ await signOut(auth); window.location.href='index.html'; }, 1600);
+    }
   });
 
   signOutBtn.addEventListener('click', async ()=>{
@@ -273,18 +375,86 @@
       showToast('Error cerrando sesión');
     }
   });
-
   backToDash.addEventListener('click', ()=> window.location.href='dashboard.html');
 
-  // MÉTRICAS
+  // inicializa listeners
+  function initAdmin(){
+    loadUsersCount();
+    listenMetrics();
+    listenHacks();
+    attachUIEvents();
+    clearForm();
+  }
+
+  function attachUIEvents(){
+    // preview update
+    [titleIn, descriptionIn, categoryIn, imageURLIn, createdByIn].forEach(el=>{
+      el.addEventListener('input', updatePreview);
+    });
+
+    imageURLIn.addEventListener('input', ()=> {
+      previewThumb.src = imageURLIn.value || '';
+      pvImg.src = imageURLIn.value || '';
+    });
+
+    // search
+    searchAdmin.addEventListener('input', (e)=> renderHacksList(e.target.value));
+
+    // preview for inputs initially
+    updatePreview();
+  }
+
+  function updatePreview(){
+    const t = titleIn.value.trim() || 'Sin título';
+    const d = descriptionIn.value.trim() || 'Descripción corta…';
+    const c = categoryIn.value.trim() || 'Sin categoría';
+    const by = createdByIn.value.trim() || (currentUserProfile && currentUserProfile.username) || '—';
+    pvTitle.textContent = t;
+    pvDesc.textContent = d.length>180? d.slice(0,180)+'…': d;
+    pvMeta.textContent = `${c} • Por: ${by}`;
+    pvImg.src = imageURLIn.value || '';
+  }
+
+  // MÉTRICAS: escucha + mini-gráfica
   function listenMetrics(){
     const metricsRef = ref(db, 'dashboard');
     onValue(metricsRef, (snap)=>{
       const data = snap.val() || {};
-      visitantesInput.value = data.visitantes ?? 0;
-      cliqueosInput.value = data.cliqueos ?? 0;
-      tiempoInput.value = data.tiempo ?? '0h 0m';
+      metrics.visitantes = data.visitantes ?? 0;
+      metrics.cliqueos = data.cliqueos ?? 0;
+      metrics.tiempo = data.tiempo ?? '0h 0m';
+      visitantesInput.value = metrics.visitantes;
+      cliqueosInput.value = metrics.cliqueos;
+      tiempoInput.value = metrics.tiempo;
+      timeDisplay.textContent = metrics.tiempo;
+      drawMiniChart(metrics.visitantes, metrics.cliqueos);
     });
+  }
+
+  function drawMiniChart(vis, clk){
+    const ctx = miniChart.getContext('2d');
+    const w = miniChart.width;
+    const h = miniChart.height;
+    ctx.clearRect(0,0,w,h);
+    // simple bars with scaling
+    const max = Math.max(1, vis, clk);
+    const pad = 20;
+    const barW = (w - pad*2) / 4;
+    // visitantes bar
+    const visH = Math.round((h - pad*2) * (vis / max));
+    const clkH = Math.round((h - pad*2) * (clk / max));
+    // draw labels
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.fillRect(pad, h - pad - visH, barW, visH);
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.fillRect(pad + barW + 10, h - pad - clkH, barW, clkH);
+    ctx.fillStyle = '#9aa6bf';
+    ctx.font = '12px system-ui, Arial';
+    ctx.fillText('Visitantes', pad, h - 4);
+    ctx.fillText('Cliqueos', pad + barW + 10, h - 4);
+    // values
+    ctx.fillText(String(vis), pad, h - pad - visH - 6);
+    ctx.fillText(String(clk), pad + barW + 10, h - pad - clkH - 6);
   }
 
   saveMetricsBtn.addEventListener('click', async ()=>{
@@ -292,18 +462,18 @@
     const cliqueos = parseInt(cliqueosInput.value) || 0;
     const tiempo = (tiempoInput.value || '0h 0m').trim();
     try {
+      showOverlay(true);
       await set(ref(db, 'dashboard/'), { visitantes, cliqueos, tiempo });
       showToast('Métricas actualizadas ✅');
     } catch(e){
       console.error(e);
       showToast('Error guardando métricas');
+    } finally {
+      showOverlay(false);
     }
   });
 
-  loadMetricsBtn.addEventListener('click', ()=>{
-    // simplemente reload (onValue actualiza inputs)
-    showToast('Métricas cargadas');
-  });
+  loadMetricsBtn.addEventListener('click', ()=> showToast('Métricas cargadas'));
 
   // USUARIOS
   async function loadUsersCount(){
@@ -349,8 +519,9 @@
       const cat = h.category || 'Sin categoría';
       const desc = h.description || '';
       const img = h.imageURL || '';
+      const createdByName = h.createdByUsername || h.createdBy || '—';
       // filtro
-      if (q && !(title.toLowerCase().includes(q) || game.toLowerCase().includes(q) || (h.createdBy||'').toLowerCase().includes(q))) return;
+      if (q && !(title.toLowerCase().includes(q) || game.toLowerCase().includes(q) || (h.createdBy||'').toLowerCase().includes(q) || (createdByName||'').toLowerCase().includes(q))) return;
 
       const div = document.createElement('div');
       div.className = 'hack';
@@ -359,7 +530,7 @@
         <div class="meta">
           <h3>${escapeHtml(title)}</h3>
           <p>${escapeHtml((desc||'').slice(0,140))}</p>
-          <div class="sub">Juego: ${escapeHtml(game)} • ${escapeHtml(cat)} • Por: ${escapeHtml(h.createdBy||'—')}</div>
+          <div class="sub">Juego: ${escapeHtml(game)} • ${escapeHtml(cat)} • Por: ${escapeHtml(createdByName)}</div>
           <div class="sub" style="margin-top:6px;color:var(--muted)">ID: ${id} • ${h.timestamp ? new Date(h.timestamp).toLocaleString() : ''}</div>
         </div>
         <div class="controls-hack">
@@ -379,11 +550,14 @@
         const id = b.dataset.id;
         if (!confirm('¿Eliminar este hack? Esto no se puede deshacer')) return;
         try {
+          showOverlay(true);
           await remove(ref(db, 'hacks/' + id));
           showToast('Hack eliminado');
         } catch(e){
           console.error(e);
           showToast('Error al eliminar');
+        } finally {
+          showOverlay(false);
         }
       };
     });
@@ -400,6 +574,7 @@
     const ownerVideoURL = (ownerVideoURLIn.value||'').trim();
     const rights = (rightsIn.value||'').trim();
     const createdBy = (createdByIn.value||'').trim() || (auth.currentUser && auth.currentUser.email) || 'Anónimo';
+    const createdByUsername = (currentUserProfile && currentUserProfile.username) ? currentUserProfile.username : null;
 
     if (!title || !game || !downloadURL) {
       showToast('Título, Juego y Link de descarga son obligatorios');
@@ -408,16 +583,16 @@
 
     const payload = {
       title, game, category, description, imageURL, downloadURL, ownerVideoURL, rights, createdBy,
+      createdByUsername: createdByUsername || createdBy,
       timestamp: Date.now()
     };
 
     try {
+      showOverlay(true);
       if (editingId){
-        // actualizar (mantener timestamp original? actualizamos timestamp para orden reciente)
         await update(ref(db, 'hacks/' + editingId), payload);
         showToast('Hack actualizado ✅');
       } else {
-        // crear
         const newRef = push(ref(db, 'hacks'));
         await set(newRef, payload);
         showToast('Hack publicado ✅');
@@ -426,6 +601,8 @@
     } catch(e){
       console.error(e);
       showToast('Error guardando hack');
+    } finally {
+      showOverlay(false);
     }
   });
 
@@ -442,11 +619,13 @@
     descriptionIn.value = h.description || '';
     imageURLIn.value = h.imageURL || '';
     previewThumb.src = h.imageURL || '';
+    pvImg.src = h.imageURL || '';
     downloadURLIn.value = h.downloadURL || '';
     ownerVideoURLIn.value = h.ownerVideoURL || '';
     rightsIn.value = h.rights || '';
-    createdByIn.value = h.createdBy || (auth.currentUser && auth.currentUser.email) || '';
+    createdByIn.value = h.createdByUsername || h.createdBy || (currentUserProfile && currentUserProfile.username) || (auth.currentUser && auth.currentUser.email) || '';
     saveHackBtn.textContent = 'Guardar cambios';
+    updatePreview();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -455,23 +634,11 @@
     previewThumb.src = imageURLIn.value || '';
   });
 
-  // búsqueda admin
-  searchAdmin.addEventListener('input', (e)=>{
-    renderHacksList(e.target.value);
-  });
-
-  // helper escapes (sencillas)
-  function escapeHtml(s){
-    if (!s) return '';
-    return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
-  }
-  function escapeAttr(s){
-    if (!s) return '';
-    return String(s).replaceAll('"','%22').replaceAll("'",'%27');
-  }
+  // helper escapes (sencillas) definidos arriba
 
   // carga inicial
-  clearForm();
+  // clearForm() es llamada dentro de initAdmin cuando el usuario está autorizado
+
 </script>
 </body>
-</html>
+                                 </html>
