@@ -41,7 +41,6 @@
   }
   .brand h1{font-size:18px;margin:0}
 
-  /* 🔹 Controles reorganizados */
   .controls {
     display:flex;
     align-items:center;
@@ -59,19 +58,59 @@
     background:rgba(255,255,255,0.02);
     padding:6px 10px;border-radius:10px;font-size:13px;color:var(--muted)
   }
-  .actions {
+
+  /* 🔹 Botón de 3 punticos */
+  .menu-toggle {
+    background:transparent;
+    border:0;
+    color:white;
+    font-size:22px;
+    cursor:pointer;
+    padding:4px 8px;
+    border-radius:8px;
+  }
+
+  /* 🔹 Menú flotante */
+  .dropdown-menu {
+    position:absolute;
+    top:60px;
+    right:20px;
+    background:var(--card);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.4);
+    display:none;
+    flex-direction:column;
+    min-width:200px;
+    z-index:100;
+    padding:10px;
+  }
+  .dropdown-menu.show{display:flex}
+
+  .dropdown-menu div{
+    padding:8px 10px;
+    font-size:14px;
+    color:var(--muted);
+    border-radius:8px;
     display:flex;
-    gap:8px;
+    justify-content:space-between;
+    align-items:center;
   }
-  .user {
-    display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.02);
-    padding:6px 10px;border-radius:12px;
+  .dropdown-menu div:hover{
+    background:rgba(255,255,255,0.05);
+    color:white;
   }
-  .btn {
-    padding:8px 12px;border-radius:10px;border:0;background:var(--accent);color:white;cursor:pointer;
+  .dropdown-menu button{
+    margin-top:6px;
+    border:0;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
   }
-  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-  .btn.danger{background:#e74c3c;color:white}
+  .btn-admin{background:var(--accent);color:white;width:100%}
+  .btn-logout{background:#e74c3c;color:white;width:100%}
+
   main{padding:20px;max-width:1200px;margin:18px auto}
   .top-row{display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
   .cards{display:flex;gap:12px;flex-wrap:wrap}
@@ -81,7 +120,6 @@
   }
   .section-title{margin:18px 0 8px;color:var(--muted);font-weight:600}
 
-  /* Games list */
   .game {
     margin:16px 0;
     border-radius:12px;
@@ -91,7 +129,6 @@
   }
   .game h2{margin:0 0 8px;font-size:18px}
   .mods{display:flex;flex-direction:column;gap:10px}
-
   .mod {
     display:flex;gap:12px;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.01), transparent);
     border:1px solid rgba(255,255,255,0.02);
@@ -114,7 +151,6 @@
 
   footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
 
-  /* responsive */
   @media (max-width:720px){
     .mod{flex-direction:row}
     .actionsCol{align-items:flex-start}
@@ -132,23 +168,21 @@
       </div>
     </div>
 
-    <!-- 🔹 Controles ordenados -->
     <div class="controls">
       <input id="searchInput" class="search" placeholder="Buscar por nombre del juego..." />
-
       <div class="stats">
         <div class="stat" id="totalHacks">Hacks: 0</div>
         <div class="stat" id="totalUsers">Usuarios: —</div>
       </div>
 
-      <div class="actions">
-        <button class="btn" id="refreshBtn">Refrescar</button>
-        <button class="btn ghost" id="openAdmin">Abrir admin</button>
-      </div>
+      <!-- Botón de menú de 3 puntos -->
+      <button class="menu-toggle" id="menuToggle">⋮</button>
 
-      <div class="user" id="userInfo">
-        <div id="userEmail" style="font-size:13px;color:var(--muted)">cargando...</div>
-        <button id="logoutBtn" class="btn danger">Cerrar sesión</button>
+      <!-- Menú desplegable -->
+      <div class="dropdown-menu" id="dropdownMenu">
+        <div id="userEmail">cargando...</div>
+        <button class="btn-admin" id="openAdmin">Abrir admin</button>
+        <button class="btn-logout" id="logoutBtn">Cerrar sesión</button>
       </div>
     </div>
   </header>
@@ -157,15 +191,11 @@
     <div class="top-row">
       <div>
         <div class="section-title">Categorías</div>
-        <div class="cards" id="categoryCards">
-          <!-- cards aquí -->
-        </div>
+        <div class="cards" id="categoryCards"></div>
       </div>
     </div>
 
-    <div id="resultsContainer">
-      <!-- resultados agrupados por juego -->
-    </div>
+    <div id="resultsContainer"></div>
   </main>
 
   <footer>© Luck modz — 2024 - 2025</footer>
@@ -197,11 +227,24 @@
   const totalUsersEl = document.getElementById('totalUsers');
   const userEmailEl = document.getElementById('userEmail');
   const logoutBtn = document.getElementById('logoutBtn');
-  const refreshBtn = document.getElementById('refreshBtn');
   const openAdminBtn = document.getElementById('openAdmin');
+  const menuToggle = document.getElementById('menuToggle');
+  const dropdownMenu = document.getElementById('dropdownMenu');
 
   let allHacks = {};
   let allUsersCount = null;
+
+  // Mostrar/ocultar menú
+  menuToggle.addEventListener('click', () => {
+    dropdownMenu.classList.toggle('show');
+  });
+
+  // Cierra el menú si haces click fuera
+  document.addEventListener('click', (e)=>{
+    if (!dropdownMenu.contains(e.target) && e.target !== menuToggle){
+      dropdownMenu.classList.remove('show');
+    }
+  });
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -223,8 +266,6 @@
     const val = snapshot.val() || {};
     allHacks = val;
     renderOverviewAndResults();
-  }, (err) => {
-    console.error('DB read error', err);
   });
 
   function groupByGame(hacksObj) {
@@ -331,20 +372,7 @@
     return String(s).replaceAll('"','%22').replaceAll("'",'%27');
   }
 
-  let searchTimer = null;
-  searchInput.addEventListener('input', (e)=>{
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(()=>renderOverviewAndResults(e.target.value), 220);
-  });
-
-  refreshBtn.addEventListener('click', ()=> {
-    renderOverviewAndResults(searchInput.value);
-  });
-
-  openAdminBtn.addEventListener('click', ()=> {
-    window.location.href = 'admin.html';
-  });
-
+  openAdminBtn.addEventListener('click', ()=> window.location.href = 'admin.html');
   logoutBtn.addEventListener('click', async ()=>{
     try {
       await signOut(auth);
