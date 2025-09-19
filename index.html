@@ -3,19 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro / Login</title>
+  <title>Login / Registro</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      width: 320px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
+      color: #fff;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #1abc9c;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #16a085;
+    }
+
+    .switch {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .switch a {
+      color: #1abc9c;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <h2>Registro</h2>
-  <input type="text" id="username" placeholder="Usuario"><br>
-  <input type="email" id="email" placeholder="Correo"><br>
-  <input type="password" id="password" placeholder="Contraseña"><br>
-  <button id="btnRegister">Registrarse</button>
+  <div class="container">
+    <!-- Registro -->
+    <div id="registerBox">
+      <h2>Crear Cuenta</h2>
+      <input type="text" id="username" placeholder="Usuario"><br>
+      <input type="email" id="email" placeholder="Correo"><br>
+      <input type="password" id="password" placeholder="Contraseña"><br>
+      <button id="btnRegister">Registrarse</button>
+      <div class="switch">¿Ya tienes cuenta? <a onclick="showLogin()">Inicia sesión</a></div>
+    </div>
 
-  <h2>Login</h2>
-  <input type="email" id="loginEmail" placeholder="Correo"><br>
-  <input type="password" id="loginPassword" placeholder="Contraseña"><br>
-  <button id="btnLogin">Ingresar</button>
+    <!-- Login -->
+    <div id="loginBox" class="hidden">
+      <h2>Iniciar Sesión</h2>
+      <input type="email" id="loginEmail" placeholder="Correo"><br>
+      <input type="password" id="loginPassword" placeholder="Contraseña"><br>
+      <button id="btnLogin">Ingresar</button>
+      <div class="switch">¿No tienes cuenta? <a onclick="showRegister()">Regístrate</a></div>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -24,7 +103,7 @@
     import { getDatabase, ref, set } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    // 🔹 Tu configuración de Firebase
+    // 🔹 Configuración Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyD9_Wps61TDrx6PVfKgzvgoQLGlIRrzSaA",
       authDomain: "weblogin-bbd5f.firebaseapp.com",
@@ -36,7 +115,6 @@
       measurementId: "G-33G9QVHQGQ"
     };
 
-    // 🔹 Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
@@ -47,14 +125,13 @@
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Guardar datos en Realtime DB
         await set(ref(db, 'users/' + user.uid), {
           username: username,
           email: email
         });
 
         alert("✅ Usuario registrado con éxito");
-        window.location.href = "dashboard.html"; // redirigir al panel
+        window.location.href = "dashboard.html";
       } catch (error) {
         alert("❌ Error: " + error.message);
       }
@@ -65,13 +142,13 @@
       try {
         await signInWithEmailAndPassword(auth, email, password);
         alert("✅ Login exitoso");
-        window.location.href = "dashboard.html"; // redirigir al panel
+        window.location.href = "dashboard.html";
       } catch (error) {
         alert("❌ Error: " + error.message);
       }
     }
 
-    // 🔹 Eventos
+    // 🔹 Botones
     document.getElementById("btnRegister").addEventListener("click", () => {
       const username = document.getElementById("username").value;
       const email = document.getElementById("email").value;
@@ -84,6 +161,17 @@
       const password = document.getElementById("loginPassword").value;
       login(email, password);
     });
+
+    // 🔹 Cambiar entre login y registro
+    window.showLogin = function() {
+      document.getElementById("registerBox").classList.add("hidden");
+      document.getElementById("loginBox").classList.remove("hidden");
+    };
+
+    window.showRegister = function() {
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("registerBox").classList.remove("hidden");
+    };
   </script>
 </body>
 </html>
