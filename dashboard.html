@@ -121,40 +121,78 @@
   .section-title{margin:18px 0 8px;color:var(--muted);font-weight:600}
 
   .game {
-    margin:16px 0;
+    margin:20px 0;
     border-radius:12px;
-    padding:14px;
+    padding:10px;
     background: rgba(255,255,255,0.02);
-    border:1px solid rgba(255,255,255,0.02);
   }
-  .game h2{margin:0 0 8px;font-size:18px}
-  .mods{display:flex;flex-direction:column;gap:10px}
+  .game h2{margin:0 0 16px;font-size:18px}
+
+  .mods{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+    gap:16px;
+  }
+
+  /* 🔹 Diseño de cada mod en formato "box/tarjeta" */
   .mod {
-    display:flex;gap:12px;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.01), transparent);
-    border:1px solid rgba(255,255,255,0.02);
+    display:flex;
+    flex-direction:column;
+    background:var(--card);
+    border-radius:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+    overflow:hidden;
+    transition:transform 0.2s ease;
   }
+  .mod:hover{transform:translateY(-4px)}
+
   .mod .thumb{
-    width:92px;height:64px;border-radius:8px;flex:0 0 92px;background:#071427;overflow:hidden;display:flex;align-items:center;justify-content:center;
+    width:100%;
+    height:160px;
+    background:#071427;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
   .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 
-  .meta{flex:1;min-width:0}
-  .meta h3{margin:0;font-size:15px}
-  .meta p{margin:6px 0 0;font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-  .meta .tags{margin-top:6px;font-size:12px;color:var(--muted)}
+  .meta{
+    flex:1;
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .meta h3{margin:0;font-size:16px}
+  .meta p{margin:0;font-size:13px;color:var(--muted)}
+  .meta .tags{font-size:12px;color:var(--muted)}
+  .rights{font-size:11px;color:var(--muted)}
 
-  .actionsCol{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-  .actionsCol a{display:inline-block;padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:600}
+  .actionsCol{
+    display:flex;
+    gap:8px;
+    padding:10px;
+    border-top:1px solid rgba(255,255,255,0.06);
+    justify-content:space-between;
+  }
+  .actionsCol a{
+    display:inline-block;
+    padding:8px 10px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:600;
+    font-size:13px;
+    text-align:center;
+    flex:1;
+  }
   .download{background:var(--success);color:#04211a}
-  .video{background:#fff;color:#000;border-radius:8px;padding:6px 8px;font-weight:600}
-  .rights{font-size:12px;color:var(--muted);margin-top:6px}
+  .video{background:#fff;color:#000}
 
   footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
 
   @media (max-width:720px){
-    .mod{flex-direction:row}
-    .actionsCol{align-items:flex-start}
-    .thumb{width:92px;height:64px}
+    .mods{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -255,13 +293,12 @@
       totalUsersEl.textContent = `Usuarios: —`;
     }
 
-    // 🔑 Verificar autorización del usuario
     try {
       const userSnap = await get(ref(db, 'users/' + user.uid));
       if (userSnap.exists() && userSnap.val().authorized) {
-        openAdminBtn.style.display = "block"; // mostrar botón admin solo si autorizado
+        openAdminBtn.style.display = "block";
       } else {
-        openAdminBtn.style.display = "none";  // ocultar si no es admin
+        openAdminBtn.style.display = "none";
       }
     } catch (e) {
       console.error("Error leyendo autorización:", e);
@@ -343,18 +380,16 @@
       modsContainer.className = 'mods';
 
       mods.forEach(mod=>{
-        const thumbHTML = `<div class="thumb"><img loading="lazy" src="${escapeAttr(mod.imageURL || '')}" alt="${escapeAttr(mod.title||'imagen')}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'200\\' height=\\'120\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%230b1220\\' /><text x=\\'50%\\' y=\\'50%\\' fill=\\'%23ffffff\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-size=\\'14\\'>No imagen</text></svg>'"></div>`;
-
-        const desc = mod.description ? String(mod.description) : '';
-        const truncated = desc.length > 180 ? desc.slice(0,180) + '…' : desc;
-
         const row = document.createElement('div');
         row.className = 'mod';
         row.innerHTML = `
-          ${thumbHTML}
+          <div class="thumb">
+            <img loading="lazy" src="${escapeAttr(mod.imageURL || '')}" alt="${escapeAttr(mod.title||'imagen')}"
+            onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'200\\' height=\\'120\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%230b1220\\' /><text x=\\'50%\\' y=\\'50%\\' fill=\\'%23ffffff\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-size=\\'14\\'>No imagen</text></svg>'">
+          </div>
           <div class="meta">
             <h3>${escapeHtml(mod.title || 'Sin título')}</h3>
-            <p>${escapeHtml(truncated)}</p>
+            <p>${escapeHtml(mod.description ? String(mod.description).slice(0,180) : '')}</p>
             <div class="tags">Categoría: ${escapeHtml(mod.category || 'Sin categoría')} • Publicado por: ${escapeHtml(mod.createdByUsername || 'Anónimo')}</div>
             <div class="rights">Derechos: ${escapeHtml(mod.rights || 'No especificado')}</div>
           </div>
