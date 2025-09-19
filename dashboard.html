@@ -1,64 +1,361 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Panel Protegido</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display:flex; justify-content:center; align-items:center; height:100vh;
-      background:#2575fc; color:#fff; text-align:center;
-    }
-    .box { background: rgba(0,0,0,0.4); padding:30px; border-radius:15px; }
-    button {
-      padding:10px 20px; border:none; border-radius:8px; cursor:pointer;
-      margin-top:20px; background:#ffcd00; color:#000; font-weight:bold;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dashboard - Hacks Gratis</title>
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+<style>
+  :root{
+    --bg:#0f1724;
+    --card:#0b1220;
+    --accent:#2575fc;
+    --muted:#9aa6bf;
+    --glass: rgba(255,255,255,0.04);
+    --success:#1abc9c;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Arial,sans-serif;
+    background: linear-gradient(180deg,#071228 0%, #0b1830 100%);
+    color:#e6eef6;
+    min-height:100vh;
+  }
+
+  header{
+    display:flex;
+    gap:16px;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 20px;
+    border-bottom:1px solid rgba(255,255,255,0.03);
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+  }
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{
+    width:44px;height:44px;border-radius:8px;
+    background:linear-gradient(135deg,var(--accent),#6a11cb);
+    display:flex;align-items:center;justify-content:center;font-weight:700;
+    box-shadow:0 6px 18px rgba(37,117,252,0.15);
+  }
+  .brand h1{font-size:18px;margin:0}
+
+  /* 🔹 Controles reorganizados */
+  .controls {
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .search {
+    padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);
+    background:var(--glass); color:var(--muted); min-width:220px;
+  }
+  .stats {
+    display:flex;
+    gap:8px;
+  }
+  .stat {
+    background:rgba(255,255,255,0.02);
+    padding:6px 10px;border-radius:10px;font-size:13px;color:var(--muted)
+  }
+  .actions {
+    display:flex;
+    gap:8px;
+  }
+  .user {
+    display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.02);
+    padding:6px 10px;border-radius:12px;
+  }
+  .btn {
+    padding:8px 12px;border-radius:10px;border:0;background:var(--accent);color:white;cursor:pointer;
+  }
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+  .btn.danger{background:#e74c3c;color:white}
+  main{padding:20px;max-width:1200px;margin:18px auto}
+  .top-row{display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  .cards{display:flex;gap:12px;flex-wrap:wrap}
+  .card {
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:12px;padding:12px;min-width:220px;flex:1 1 200px;box-shadow:0 6px 18px rgba(0,0,0,0.4);
+  }
+  .section-title{margin:18px 0 8px;color:var(--muted);font-weight:600}
+
+  /* Games list */
+  .game {
+    margin:16px 0;
+    border-radius:12px;
+    padding:14px;
+    background: rgba(255,255,255,0.02);
+    border:1px solid rgba(255,255,255,0.02);
+  }
+  .game h2{margin:0 0 8px;font-size:18px}
+  .mods{display:flex;flex-direction:column;gap:10px}
+
+  .mod {
+    display:flex;gap:12px;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.01), transparent);
+    border:1px solid rgba(255,255,255,0.02);
+  }
+  .mod .thumb{
+    width:92px;height:64px;border-radius:8px;flex:0 0 92px;background:#071427;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  }
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+
+  .meta{flex:1;min-width:0}
+  .meta h3{margin:0;font-size:15px}
+  .meta p{margin:6px 0 0;font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .meta .tags{margin-top:6px;font-size:12px;color:var(--muted)}
+
+  .actionsCol{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+  .actionsCol a{display:inline-block;padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:600}
+  .download{background:var(--success);color:#04211a}
+  .video{background:#fff;color:#000;border-radius:8px;padding:6px 8px;font-weight:600}
+  .rights{font-size:12px;color:var(--muted);margin-top:6px}
+
+  footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
+
+  /* responsive */
+  @media (max-width:720px){
+    .mod{flex-direction:row}
+    .actionsCol{align-items:flex-start}
+    .thumb{width:92px;height:64px}
+  }
+</style>
 </head>
 <body>
-  <div class="box">
-    <h1>Bienvenido, <span id="username">Cargando...</span>!</h1>
-    <p>Esta página solo se ve si estás logueado.</p>
-    <button id="logoutBtn">Cerrar sesión</button>
-  </div>
+  <header>
+    <div class="brand">
+      <div class="logo">LM</div>
+      <div>
+        <h1>Luck modz — Hacks Gratis</h1>
+        <div style="font-size:12px;color:var(--muted)">Panel público para usuarios autenticados</div>
+      </div>
+    </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+    <!-- 🔹 Controles ordenados -->
+    <div class="controls">
+      <input id="searchInput" class="search" placeholder="Buscar por nombre del juego..." />
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyD9_Wps61TDrx6PVfKgzvgoQLGlIRrzSaA",
-      authDomain: "weblogin-bbd5f.firebaseapp.com",
-      databaseURL: "https://weblogin-bbd5f-default-rtdb.firebaseio.com",
-      projectId: "weblogin-bbd5f",
-      storageBucket: "weblogin-bbd5f.firebasestorage.app",
-      messagingSenderId: "446557224878",
-      appId: "1:446557224878:web:0c626cf886d4ae9ad9523f",
-      measurementId: "G-33G9QVHQGQ"
-    };
+      <div class="stats">
+        <div class="stat" id="totalHacks">Hacks: 0</div>
+        <div class="stat" id="totalUsers">Usuarios: —</div>
+      </div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+      <div class="actions">
+        <button class="btn" id="refreshBtn">Refrescar</button>
+        <button class="btn ghost" id="openAdmin">Abrir admin</button>
+      </div>
 
-    const usernameSpan = document.getElementById("username");
-    const logoutBtn = document.getElementById("logoutBtn");
+      <div class="user" id="userInfo">
+        <div id="userEmail" style="font-size:13px;color:var(--muted)">cargando...</div>
+        <button id="logoutBtn" class="btn danger">Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const snap = await get(ref(db, "users/" + user.uid + "/username"));
-        usernameSpan.textContent = snap.exists() ? snap.val() : "Usuario";
-      } else {
-        window.location.href = "index.html";
+  <main>
+    <div class="top-row">
+      <div>
+        <div class="section-title">Categorías</div>
+        <div class="cards" id="categoryCards">
+          <!-- cards aquí -->
+        </div>
+      </div>
+    </div>
+
+    <div id="resultsContainer">
+      <!-- resultados agrupados por juego -->
+    </div>
+  </main>
+
+  <footer>© Luck modz — Publica y organiza hacks por categorías. Las imágenes se cargan vía URL.</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+  import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD9_Wps61TDrx6PVfKgzvgoQLGlIRrzSaA",
+    authDomain: "weblogin-bbd5f.firebaseapp.com",
+    databaseURL: "https://weblogin-bbd5f-default-rtdb.firebaseio.com",
+    projectId: "weblogin-bbd5f",
+    storageBucket: "weblogin-bbd5f.firebasestorage.app",
+    messagingSenderId: "446557224878",
+    appId: "1:446557224878:web:0c626cf886d4ae9ad9523f",
+    measurementId: "G-33G9QVHQGQ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const searchInput = document.getElementById('searchInput');
+  const resultsContainer = document.getElementById('resultsContainer');
+  const categoryCards = document.getElementById('categoryCards');
+  const totalHacksEl = document.getElementById('totalHacks');
+  const totalUsersEl = document.getElementById('totalUsers');
+  const userEmailEl = document.getElementById('userEmail');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const openAdminBtn = document.getElementById('openAdmin');
+
+  let allHacks = {};
+  let allUsersCount = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = 'index.html';
+      return;
+    }
+    userEmailEl.textContent = user.email || 'usuario';
+    try {
+      const usersSnap = await get(ref(db, 'users'));
+      allUsersCount = usersSnap.exists() ? Object.keys(usersSnap.val()).length : 0;
+      totalUsersEl.textContent = `Usuarios: ${allUsersCount}`;
+    } catch (e) {
+      totalUsersEl.textContent = `Usuarios: —`;
+    }
+  });
+
+  const hacksRef = ref(db, 'hacks');
+  onValue(hacksRef, (snapshot) => {
+    const val = snapshot.val() || {};
+    allHacks = val;
+    renderOverviewAndResults();
+  }, (err) => {
+    console.error('DB read error', err);
+  });
+
+  function groupByGame(hacksObj) {
+    const map = {};
+    Object.entries(hacksObj).forEach(([id, hack]) => {
+      const game = (hack.game || 'Sin juego').trim();
+      if (!map[game]) map[game] = [];
+      map[game].push({ id, ...hack });
+    });
+    for (const g in map) {
+      map[g].sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+    }
+    return map;
+  }
+
+  function renderOverviewAndResults(filterText = '') {
+    const filter = (filterText||'').trim().toLowerCase();
+    const hacksFiltered = {};
+    Object.entries(allHacks).forEach(([id, hack])=>{
+      if (!filter || (hack.game && hack.game.toLowerCase().includes(filter))) {
+        hacksFiltered[id] = hack;
       }
     });
 
-    logoutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = "index.html";
+    const total = Object.keys(allHacks).length;
+    totalHacksEl.textContent = `Hacks: ${total}`;
+
+    const catCounts = {};
+    Object.values(allHacks).forEach(h=>{
+      const c = (h.category || 'Sin categoría').trim();
+      catCounts[c] = (catCounts[c]||0) + 1;
     });
-  </script>
+    renderCategoryCards(catCounts);
+
+    const grouped = groupByGame(hacksFiltered);
+    renderGroupedResults(grouped);
+  }
+
+  function renderCategoryCards(catCounts) {
+    categoryCards.innerHTML = '';
+    if (!catCounts || Object.keys(catCounts).length===0) {
+      categoryCards.innerHTML = `<div class="card">Sin categorías</div>`;
+      return;
+    }
+    Object.entries(catCounts).forEach(([cat, count])=>{
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.innerHTML = `<div style="font-weight:700">${cat}</div><div style="color:var(--muted);margin-top:6px">${count} hacks</div>`;
+      categoryCards.appendChild(el);
+    });
+  }
+
+  function renderGroupedResults(grouped) {
+    resultsContainer.innerHTML = '';
+    const games = Object.keys(grouped).sort((a,b)=>a.localeCompare(b));
+    if (games.length===0) {
+      resultsContainer.innerHTML = `<div style="padding:24px;background:rgba(255,255,255,0.02);border-radius:10px;text-align:center;color:var(--muted)">No se encontraron hacks para la búsqueda.</div>`;
+      return;
+    }
+
+    games.forEach(game=>{
+      const mods = grouped[game];
+      const gameEl = document.createElement('section');
+      gameEl.className = 'game';
+      gameEl.innerHTML = `<h2>${escapeHtml(game)} — <small style="color:var(--muted);font-weight:600">${mods.length} mods</small></h2>`;
+      const modsContainer = document.createElement('div');
+      modsContainer.className = 'mods';
+
+      mods.forEach(mod=>{
+        const thumbHTML = `<div class="thumb"><img loading="lazy" src="${escapeAttr(mod.imageURL || '')}" alt="${escapeAttr(mod.title||'imagen')}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'200\\' height=\\'120\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%230b1220\\' /><text x=\\'50%\\' y=\\'50%\\' fill=\\'%23ffffff\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-size=\\'14\\'>No imagen</text></svg>'"></div>`;
+
+        const desc = mod.description ? String(mod.description) : '';
+        const truncated = desc.length > 180 ? desc.slice(0,180) + '…' : desc;
+
+        const row = document.createElement('div');
+        row.className = 'mod';
+        row.innerHTML = `
+          ${thumbHTML}
+          <div class="meta">
+            <h3>${escapeHtml(mod.title || 'Sin título')}</h3>
+            <p>${escapeHtml(truncated)}</p>
+            <div class="tags">Categoría: ${escapeHtml(mod.category || 'Sin categoría')} • Publicado por: ${escapeHtml(mod.createdBy || 'Anónimo')}</div>
+            <div class="rights">Derechos: ${escapeHtml(mod.rights || 'No especificado')}</div>
+          </div>
+          <div class="actionsCol">
+            <a class="download" href="${escapeAttr(mod.downloadURL||'#')}" target="_blank" rel="noopener">Descargar</a>
+            ${mod.ownerVideoURL ? `<a class="video" href="${escapeAttr(mod.ownerVideoURL)}" target="_blank" rel="noopener">Ver video</a>` : ''}
+          </div>
+        `;
+        modsContainer.appendChild(row);
+      });
+
+      gameEl.appendChild(modsContainer);
+      resultsContainer.appendChild(gameEl);
+    });
+  }
+
+  function escapeHtml(s){
+    if (!s) return '';
+    return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  }
+  function escapeAttr(s){
+    if (!s) return '';
+    return String(s).replaceAll('"','%22').replaceAll("'",'%27');
+  }
+
+  let searchTimer = null;
+  searchInput.addEventListener('input', (e)=>{
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(()=>renderOverviewAndResults(e.target.value), 220);
+  });
+
+  refreshBtn.addEventListener('click', ()=> {
+    renderOverviewAndResults(searchInput.value);
+  });
+
+  openAdminBtn.addEventListener('click', ()=> {
+    window.location.href = 'admin.html';
+  });
+
+  logoutBtn.addEventListener('click', async ()=>{
+    try {
+      await signOut(auth);
+      window.location.href = 'index.html';
+    } catch(e){
+      console.error(e);
+      alert('Error al cerrar sesión');
+    }
+  });
+
+  renderOverviewAndResults();
+</script>
 </body>
 </html>
