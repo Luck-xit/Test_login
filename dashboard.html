@@ -1,311 +1,617 @@
 <!doctype html>
-<html lang="es">    
-<head>    
-<meta charset="utf-8" />    
-<meta name="viewport" content="width=device-width,initial-scale=1" />    
-<title>Dashboard - Hacks Gratis</title>    
-<link rel="icon" href="data:;base64,iVBORw0KGgo=">    
-
-<style>
-/* 🎨 Estilo neón dorado */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0; 
-  padding: 0;
-  background: #0f0f0f;
-  color: #FFD700; 
-  text-shadow: 0 0 5px #FFD700, 0 0 10px #FFA500;
-  min-height: 100vh;
+<html lang="es">  
+<head>  
+<meta charset="utf-8" />  
+<meta name="viewport" content="width=device-width,initial-scale=1" />  
+<title>Dashboard - Hacks Gratis</title>  
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">  
+<style>  
+  :root{  
+    --bg:#0f1724;  
+    --card:#0b1220;  
+    --accent:#2575fc;  
+    --muted:#9aa6bf;  
+    --glass: rgba(255,255,255,0.04);  
+    --success:#1abc9c;  
+  }  
+  *{box-sizing:border-box}  
+  body{  
+    margin:0;  
+    font-family:Inter,system-ui,Arial,sans-serif;  
+    background: linear-gradient(180deg,#071228 0%, #0b1830 100%);  
+    color:#e6eef6;  
+    min-height:100vh;  
+  }  header{
+display:flex;
+gap:16px;
+align-items:center;
+justify-content:space-between;
+padding:18px 20px;
+border-bottom:1px solid rgba(255,255,255,0.03);
+background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
 }
-
-h1 { text-align: center; }
-
-/* Header */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 20px;
-  border-bottom: 1px solid #333;
-  background: #1a1a1a;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+.brand{display:flex;gap:12px;align-items:center}
+.logo{
+width:44px;height:44px;border-radius:8px;
+background:linear-gradient(135deg,var(--accent),#6a11cb);
+display:flex;align-items:center;justify-content:center;font-weight:700;
+box-shadow:0 6px 18px rgba(37,117,252,0.15);
 }
-.brand { display:flex; gap:12px; align-items:center; }
-.logo {
-  width:44px; height:44px;
-  border-radius:8px;
-  background: linear-gradient(135deg,#6a11cb,#2575fc);
-  display:flex; align-items:center; justify-content:center;
-  font-weight:700; color:#fff;
-  box-shadow: 0 0 10px rgba(101,67,255,0.8);
-}
-.brand h1 { margin:0; font-size:18px; color:#FFD700; text-shadow:0 0 6px #FFA500; }
+.brand h1{font-size:18px;margin:0}
 
-/* Barra de búsqueda */
+.controls {
+display:flex;
+align-items:center;
+gap:14px;
+}
 .search {
-  width: 220px;
-  padding: 10px;
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background: #1a1a1a; 
-  color: #FFD700;
-  outline: none;
-  box-shadow: 0 0 8px rgba(138,43,226,0.8), 0 0 8px rgba(0,191,255,0.8);
+padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);
+background:var(--glass); color:var(--muted); min-width:220px;
 }
-.stats { display:flex; gap:8px; }
+.stats {
+display:flex;
+gap:8px;
+}
 .stat {
-  background: #111;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #FFD700;
-  text-shadow: 0 0 5px #FFA500;
+background:rgba(255,255,255,0.02);
+padding:6px 10px;border-radius:10px;font-size:13px;color:var(--muted)
 }
 
-/* Botones */
-button {
-  padding: 8px 12px;
-  border: 2px solid transparent;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #FFD700;
-  background: #1a1a1a;
-  border-image: linear-gradient(45deg, #8e2de2, #2575fc) 1;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* 🔹 Botón de 3 punticos */
+.menu-toggle {
+background:transparent;
+border:0;
+color:white;
+font-size:22px;
+cursor:pointer;
+padding:4px 8px;
+border-radius:8px;
 }
-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(37,117,252,0.6), 0 6px 12px rgba(142,45,226,0.6);
-}
-.btn-admin{ background:#2575fc; color:#fff; }
-.btn-logout{ background:#e74c3c; color:#fff; }
-.btn-delete{ background:#ff4d4d; color:#fff; }
 
-/* Menú desplegable */
+/* 🔹 Menú flotante */
 .dropdown-menu {
-  position:absolute;
-  top:60px; right:20px;
-  background:#1a1a1a;
-  border:1px solid #333;
-  border-radius:12px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.6);
-  display:none;
-  flex-direction:column;
-  min-width:220px;
-  z-index:100;
-  padding:10px;
+position:absolute;
+top:60px;
+right:20px;
+background:var(--card);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:12px;
+box-shadow:0 6px 18px rgba(0,0,0,0.4);
+display:none;
+flex-direction:column;
+min-width:220px;
+z-index:100;
+padding:10px;
 }
-.dropdown-menu.show { display:flex; }
-.dropdown-menu div {
-  padding:8px 10px;
-  font-size:14px;
-  color:#FFD700;
-  border-radius:8px;
-}
-.dropdown-menu div:hover {
-  background:#222;
-  color:#fff;
-}
+.dropdown-menu.show{display:flex}
 
-/* Cards */
-.cards {
-  display: grid; 
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
+.dropdown-menu div{
+padding:8px 10px;
+font-size:14px;
+color:var(--muted);
+border-radius:8px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
+.dropdown-menu div:hover{
+background:rgba(255,255,255,0.05);
+color:white;
+}
+.dropdown-menu button{
+margin-top:6px;
+border:0;
+padding:8px 12px;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+}
+.btn-admin{background:var(--accent);color:white;width:100%}
+.btn-logout{background:#e74c3c;color:white;width:100%}
+.btn-delete{background:#c0392b;color:white;width:100%;margin-top:6px}
+
+/* small modal simple */
+.modal-backdrop{
+position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:200;
+}
+.modal{
+background:var(--card);padding:18px;border-radius:12px;min-width:320px;max-width:90%;
+box-shadow:0 6px 24px rgba(0,0,0,0.6);color:#e6eef6;
+}
+.modal h3{margin:0 0 8px}
+.modal p{margin:0 0 12px;color:var(--muted)}
+.modal .row{display:flex;gap:8px}
+.modal input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+
+.main-loading{display:none;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.02);color:var(--muted);font-size:13px;margin-left:8px}
+
+main{padding:20px;max-width:1200px;margin:18px auto}
+.top-row{display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.cards{display:flex;gap:12px;flex-wrap:wrap}
 .card {
-  background: #1a1a1a;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-  display: flex; 
-  flex-direction: column;
-  color: #FFD700;
-  padding:12px;
+background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+border-radius:12px;padding:12px;min-width:220px;flex:1 1 200px;box-shadow:0 6px 18px rgba(0,0,0,0.4);
 }
-.card h3{margin:0 0 8px;color:#FFD700}
-.card p{color:#ccc;font-size:14px}
+.section-title{margin:18px 0 8px;color:var(--muted);font-weight:600}
 
-/* Mods */
+.game {
+margin:20px 0;
+border-radius:12px;
+padding:10px;
+background: rgba(255,255,255,0.02);
+}
+.game h2{margin:0 0 16px;font-size:18px}
+
+.mods{
+display:grid;
+grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+gap:16px;
+}
+
+/* 🔹 Diseño de cada mod en formato "box/tarjeta" */
 .mod {
-  background:#1a1a1a;
-  border-radius:10px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.6);
-  overflow:hidden;
-  transition:transform 0.2s ease;
-  display:flex; flex-direction:column;
+display:flex;
+flex-direction:column;
+background:var(--card);
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,0.3);
+overflow:hidden;
+transition:transform 0.2s ease;
 }
 .mod:hover{transform:translateY(-4px)}
-.thumb img{width:100%;height:160px;object-fit:cover}
-.meta{padding:12px}
-.meta h3{margin:0;color:#FFD700}
-.meta p{margin:6px 0;color:#ccc;font-size:14px}
-.actionsCol{display:flex;gap:8px;padding:10px}
-.actionsCol a{
-  flex:1;
-  text-align:center;
-  padding:8px 10px;
-  border-radius:6px;
-  font-weight:600;
-  text-decoration:none;
+
+.mod .thumb{
+width:100%;
+height:160px;
+background:#071427;
+overflow:hidden;
+display:flex;
+align-items:center;
+justify-content:center;
 }
-.download{background:#1abc9c;color:#04211a}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+
+.meta{
+flex:1;
+padding:12px;
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+.meta h3{margin:0;font-size:16px}
+.meta p{margin:0;font-size:13px;color:var(--muted)}
+.meta .tags{font-size:12px;color:var(--muted)}
+.rights{font-size:11px;color:var(--muted)}
+
+.actionsCol{
+display:flex;
+gap:8px;
+padding:10px;
+border-top:1px solid rgba(255,255,255,0.06);
+justify-content:space-between;
+}
+.actionsCol a{
+display:inline-block;
+padding:8px 10px;
+border-radius:8px;
+text-decoration:none;
+font-weight:600;
+font-size:13px;
+text-align:center;
+flex:1;
+}
+.download{background:var(--success);color:#04211a}
 .video{background:#fff;color:#000}
 
-/* Tabla */
-table {
-  width: 100%; border-collapse: collapse; margin-top: 10px;
-  background: #1a1a1a; box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-  color: #FFD700;
-}
-th, td { padding: 12px; border: 1px solid #333; text-align: left; }
-th { background: linear-gradient(90deg,#6a11cb,#2575fc); color:#fff; }
-tr:nth-child(even) { background: #111; }
+footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
 
-/* Toast */
-.toast {
-  position: fixed; right: 20px; bottom: 20px;
-  background: #333; color: #FFD700;
-  padding: 10px 14px; border-radius: 8px; display: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+@media (max-width:720px){
+.mods{grid-template-columns:1fr}
 }
-
-/* Modal */
-.modal {
-  background:#1a1a1a;
-  padding:18px;
-  border-radius:12px;
-  color:#FFD700;
-  box-shadow:0 6px 24px rgba(0,0,0,0.6);
-}
-.modal p { color:#ccc }
 </style>
-</head>
 
-<body>    
-<header>    
-  <div class="brand">    
-    <div class="logo">LM</div>    
-    <div>    
-      <h1>Luck modz — Hacks Gratis</h1>    
-      <div style="font-size:12px;color:#FFD700">Panel público para usuarios autenticados</div>    
-    </div>    
+</head>  
+<body>  
+  <header>  
+    <div class="brand">  
+      <div class="logo">LM</div>  
+      <div>  
+        <h1>Luck modz — Hacks Gratis</h1>  
+        <div style="font-size:12px;color:var(--muted)">Panel público para usuarios autenticados</div>  
+      </div>  
+    </div>  <div class="controls">  
+  <input id="searchInput" class="search" placeholder="Buscar por nombre del juego..." />  
+  <div class="stats">  
+    <div class="stat" id="totalHacks">Hacks: 0</div>  
+    <div class="stat" id="totalUsers">Usuarios: —</div>  
   </div>  
-  <div class="controls">    
-    <input id="searchInput" class="search" placeholder="Buscar por nombre del juego..." />    
-    <div class="stats">    
-      <div class="stat" id="totalHacks">Hacks: 0</div>    
-      <div class="stat" id="totalUsers">Usuarios: —</div>    
-    </div>    
-    <button class="menu-toggle" id="menuToggle">⋮</button>
-    <div class="dropdown-menu" id="dropdownMenu">    
-      <div id="userEmail">cargando...</div>    
-      <button class="btn-admin" id="openAdmin" style="display:none;">Abrir admin</button>    
-      <button class="btn-delete" id="deleteAccountBtn">Eliminar cuenta</button>  
-      <button class="btn-logout" id="logoutBtn">Cerrar sesión</button>    
-    </div>    
-  </div>    
-</header>
 
-<main>    
-  <div class="top-row">    
-    <div>    
-      <div class="section-title">Categorías</div>    
-      <div class="cards" id="categoryCards"></div>    
-    </div>    
+  <!-- Botón de menú de 3 puntos -->  
+  <button class="menu-toggle" id="menuToggle">⋮</button>  
+
+  <!-- Menú desplegable -->  
+  <div class="dropdown-menu" id="dropdownMenu">  
+    <div id="userEmail">cargando...</div>  
+    <button class="btn-admin" id="openAdmin" style="display:none;">Abrir admin</button>  
+    <button class="btn-delete" id="deleteAccountBtn">Eliminar cuenta</button>
+    <button class="btn-logout" id="logoutBtn">Cerrar sesión</button>  
   </div>  
-  <div id="resultsContainer"></div>    
-</main>    
+</div>
 
-<footer>© Luck modz — 2024 - 2025</footer>    
+  </header>    <main>  
+    <div class="top-row">  
+      <div>  
+        <div class="section-title">Categorías</div>  
+        <div class="cards" id="categoryCards"></div>  
+      </div>  
+    </div>  <div id="resultsContainer"></div>
 
-<!-- Scripts Firebase -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";    
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";    
-import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";    
+  </main>    <footer>© Luck modz — 2024 - 2025</footer>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCX-v8DWICMCZMx6vgNGtiyUrnsWyxwrgM",
-  authDomain: "luckmodz-b5fe6.firebaseapp.com",
-  projectId: "luckmodz-b5fe6",
-  storageBucket: "luckmodz-b5fe6.appspot.com",
-  messagingSenderId: "488163455223",
-  appId: "1:488163455223:web:0c50b3c9a8f1a74b03527e"
-};
-const app = initializeApp(firebaseConfig);    
-const db = getFirestore(app);    
-const auth = getAuth(app);    
-
-const categoryCards = document.getElementById("categoryCards");    
-const resultsContainer = document.getElementById("resultsContainer");    
-const totalHacksEl = document.getElementById("totalHacks");    
-const totalUsersEl = document.getElementById("totalUsers");    
-const searchInput = document.getElementById("searchInput");    
-
-async function loadCategories() {
-  const q = query(collection(db, "categories"));
-  const snapshot = await getDocs(q);
-  categoryCards.innerHTML = "";
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `<h3>${data.name}</h3>`;
-    card.addEventListener("click", () => loadMods(doc.id));
-    categoryCards.appendChild(card);
-  });
-}
-async function loadMods(catId) {
-  const q = query(collection(db, "mods"), where("category", "==", catId));
-  const snapshot = await getDocs(q);
-  resultsContainer.innerHTML = "";
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    const mod = document.createElement("div");
-    mod.className = "mod";
-    mod.innerHTML = `
-      <div class="thumb"><img src="${data.image}" alt=""></div>
-      <div class="meta">
-        <h3>${data.name}</h3>
-        <p>${data.description}</p>
+  <!-- Simple modal for messages / password input -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 id="modalTitle">Confirmación</h3>
+      <p id="modalDesc">...</p>
+      <div id="modalContent" class="row">
+        <!-- content injected dynamically -->
       </div>
-      <div class="actionsCol">
-        <a href="${data.download}" target="_blank" class="download">Descargar</a>
-        <a href="${data.video}" target="_blank" class="video">Video</a>
+      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+        <button id="modalCancel" style="padding:8px 12px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Cancelar</button>
+        <button id="modalOk" style="padding:8px 12px;border-radius:8px;background:var(--accent);border:0;color:#fff">Aceptar</button>
       </div>
-    `;
-    resultsContainer.appendChild(mod);
-  });
-}
+    </div>
+  </div>
 
-onAuthStateChanged(auth, user => {
-  if (!user) {
-    window.location.href = "login.html";
-  } else {
-    document.getElementById("userEmail").textContent = user.email;
-    if (user.email.endsWith("@admin.com")) {
-      document.getElementById("openAdmin").style.display = "block";
+  <script type="module">  
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";  
+  import { 
+    getAuth, onAuthStateChanged, signOut, deleteUser, EmailAuthProvider, reauthenticateWithCredential 
+  } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";  
+  import { getDatabase, ref, onValue, get, remove } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";  
+  
+  const firebaseConfig = {  
+    apiKey: "AIzaSyD9_Wps61TDrx6PVfKgzvgoQLGlIRrzSaA",  
+    authDomain: "weblogin-bbd5f.firebaseapp.com",  
+    databaseURL: "https://weblogin-bbd5f-default-rtdb.firebaseio.com",  
+    projectId: "weblogin-bbd5f",  
+    storageBucket: "weblogin-bbd5f.firebasestorage.app",  
+    messagingSenderId: "446557224878",  
+    appId: "1:446557224878:web:0c626cf886d4ae9ad9523f",  
+    measurementId: "G-33G9QVHQGQ"  
+  };  
+  
+  const app = initializeApp(firebaseConfig);  
+  const auth = getAuth(app);  
+  const db = getDatabase(app);  
+  
+  const searchInput = document.getElementById('searchInput');  
+  const resultsContainer = document.getElementById('resultsContainer');  
+  const categoryCards = document.getElementById('categoryCards');  
+  const totalHacksEl = document.getElementById('totalHacks');  
+  const totalUsersEl = document.getElementById('totalUsers');  
+  const userEmailEl = document.getElementById('userEmail');  
+  const logoutBtn = document.getElementById('logoutBtn');  
+  const openAdminBtn = document.getElementById('openAdmin');  
+  const menuToggle = document.getElementById('menuToggle');  
+  const dropdownMenu = document.getElementById('dropdownMenu');  
+  const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+
+  // modal elements
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDesc = document.getElementById('modalDesc');
+  const modalContent = document.getElementById('modalContent');
+  const modalCancel = document.getElementById('modalCancel');
+  const modalOk = document.getElementById('modalOk');
+
+  let allHacks = {};  
+  let allUsersCount = null;  
+  let currentUser = null;
+
+  function showModal({ title='Confirmación', desc='', placeholder='', okText='Aceptar', showInput=true }) {
+    modalTitle.textContent = title;
+    modalDesc.textContent = desc;
+    modalContent.innerHTML = '';
+    if (showInput) {
+      const input = document.createElement('input');
+      input.type = 'password';
+      input.placeholder = placeholder || 'Contraseña';
+      input.id = 'modalPasswordInput';
+      modalContent.appendChild(input);
+      setTimeout(()=> input.focus(),50);
     }
+    modalOk.textContent = okText;
+    modalBackdrop.style.display = 'flex';
   }
-});
+  function hideModal(){ modalBackdrop.style.display = 'none'; modalContent.innerHTML = ''; }
 
-document.getElementById("logoutBtn").addEventListener("click", async () => {
-  await signOut(auth);
-});
-document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
-  const user = auth.currentUser;
-  if (user && confirm("¿Eliminar cuenta permanentemente?")) {
-    await deleteUser(user);
-  }
-});
+  modalCancel.addEventListener('click', ()=> hideModal());
+  modalBackdrop.addEventListener('click', (e)=> { if (e.target === modalBackdrop) hideModal(); });
 
-document.getElementById("menuToggle").addEventListener("click", () => {
-  document.getElementById("dropdownMenu").classList.toggle("show");
-});
+  menuToggle.addEventListener('click', () => dropdownMenu.classList.toggle('show'));  
+  document.addEventListener('click', (e)=>{  
+    if (!dropdownMenu.contains(e.target) && e.target !== menuToggle){  
+      dropdownMenu.classList.remove('show');  
+    }  
+  });  
 
-loadCategories();
-</script>
-</body>    
+  onAuthStateChanged(auth, async (user) => {  
+    if (!user) {  
+      window.location.href = 'index.html';  
+      return;  
+    }  
+    currentUser = user;
+    userEmailEl.textContent = user.email || 'usuario';  
+    try {  
+      const usersSnap = await get(ref(db, 'users'));  
+      allUsersCount = usersSnap.exists() ? Object.keys(usersSnap.val()).length : 0;  
+      totalUsersEl.textContent = `Usuarios: ${allUsersCount}`;  
+    } catch (e) {  
+      totalUsersEl.textContent = `Usuarios: —`;  
+    }  
+  
+    try {  
+      const userSnap = await get(ref(db, 'users/' + user.uid));  
+      if (userSnap.exists() && userSnap.val().authorized) {  
+        openAdminBtn.style.display = "block";  
+      } else {  
+        openAdminBtn.style.display = "none";  
+      }  
+    } catch (e) {  
+      console.error("Error leyendo autorización:", e);  
+      openAdminBtn.style.display = "none";  
+    }  
+  });  
+  
+  const hacksRef = ref(db, 'hacks');  
+  onValue(hacksRef, (snapshot) => {  
+    const val = snapshot.val() || {};  
+    allHacks = val;  
+    renderOverviewAndResults();  
+  });  
+  
+  function groupByGame(hacksObj) {  
+    const map = {};  
+    Object.entries(hacksObj).forEach(([id, hack]) => {  
+      const game = (hack.game || 'Sin juego').trim();  
+      if (!map[game]) map[game] = [];  
+      map[game].push({ id, ...hack });  
+    });  
+    for (const g in map) {  
+      map[g].sort((a,b) => (b.timestamp||0) - (a.timestamp||0));  
+    }  
+    return map;  
+  }  
+  
+  function renderOverviewAndResults(filterText = '') {  
+    const filter = (filterText||'').trim().toLowerCase();  
+    const hacksFiltered = {};  
+    Object.entries(allHacks).forEach(([id, hack])=>{  
+      if (!filter || (hack.game && hack.game.toLowerCase().includes(filter))) {  
+        hacksFiltered[id] = hack;  
+      }  
+    });  
+  
+    const total = Object.keys(allHacks).length;  
+    totalHacksEl.textContent = `Hacks: ${total}`;  
+  
+    const catCounts = {};  
+    Object.values(allHacks).forEach(h=>{  
+      const c = (h.category || 'Sin categoría').trim();  
+      catCounts[c] = (catCounts[c]||0) + 1;  
+    });  
+    renderCategoryCards(catCounts);  
+  
+    const grouped = groupByGame(hacksFiltered);  
+    renderGroupedResults(grouped);  
+  }  
+  
+  function renderCategoryCards(catCounts) {  
+    categoryCards.innerHTML = '';  
+    if (!catCounts || Object.keys(catCounts).length===0) {  
+      categoryCards.innerHTML = `<div class="card">Sin categorías</div>`;  
+      return;  
+    }  
+    Object.entries(catCounts).forEach(([cat, count])=>{  
+      const el = document.createElement('div');  
+      el.className = 'card';  
+      el.innerHTML = `<div style="font-weight:700">${cat}</div><div style="color:var(--muted);margin-top:6px">${count} hacks</div>`;  
+      categoryCards.appendChild(el);  
+    });  
+  }  
+  
+  function renderGroupedResults(grouped) {  
+    resultsContainer.innerHTML = '';  
+    const games = Object.keys(grouped).sort((a,b)=>a.localeCompare(b));  
+    if (games.length===0) {  
+      resultsContainer.innerHTML = `<div style="padding:24px;background:rgba(255,255,255,0.02);border-radius:10px;text-align:center;color:var(--muted)">No se encontraron hacks para la búsqueda.</div>`;  
+      return;  
+    }  
+  
+    games.forEach(game=>{  
+      const mods = grouped[game];  
+      const gameEl = document.createElement('section');  
+      gameEl.className = 'game';  
+      gameEl.innerHTML = `<h2>${escapeHtml(game)} — <small style="color:var(--muted);font-weight:600">${mods.length} mods</small></h2>`;  
+      const modsContainer = document.createElement('div');  
+      modsContainer.className = 'mods';  
+  
+      mods.forEach(mod=>{  
+        const row = document.createElement('div');  
+        row.className = 'mod';  
+        row.innerHTML = `  
+          <div class="thumb">  
+            <img loading="lazy" src="${escapeAttr(mod.imageURL || '')}" alt="${escapeAttr(mod.title||'imagen')}"  
+            onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'200\\' height=\\'120\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%230b1220\\' /><text x=\\'50%\\' y=\\'50%\\' fill=\\'%23ffffff\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-size=\\'14\\'>No imagen</text></svg>'">  
+          </div>  
+          <div class="meta">  
+            <h3>${escapeHtml(mod.title || 'Sin título')}</h3>  
+            <p>${escapeHtml(mod.description ? String(mod.description).slice(0,180) : '')}</p>  
+            <div class="tags">Categoría: ${escapeHtml(mod.category || 'Sin categoría')} • Publicado por: ${escapeHtml(mod.createdByUsername || 'Anónimo')}</div>  
+            <div class="rights">Derechos: ${escapeHtml(mod.rights || 'No especificado')}</div>  
+          </div>  
+          <div class="actionsCol">  
+            <a class="download" href="${escapeAttr(mod.downloadURL||'#')}" target="_blank" rel="noopener">Descargar</a>  
+            ${mod.ownerVideoURL ? `<a class="video" href="${escapeAttr(mod.ownerVideoURL)}" target="_blank" rel="noopener">Ver video</a>` : ''}  
+          </div>  
+        `;  
+        modsContainer.appendChild(row);  
+      });  
+  
+      gameEl.appendChild(modsContainer);  
+      resultsContainer.appendChild(gameEl);  
+    });  
+  }  
+  
+  function escapeHtml(s){  
+    if (!s) return '';  
+    return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');  
+  }  
+  function escapeAttr(s){  
+    if (!s) return '';  
+    return String(s).replaceAll('"','%22').replaceAll("'",'%27');  
+  }  
+  
+  openAdminBtn.addEventListener('click', ()=> window.location.href = 'admin.html');  
+  logoutBtn.addEventListener('click', async ()=>{  
+    try {  
+      await signOut(auth);  
+      window.location.href = 'index.html';  
+    } catch(e){  
+      console.error(e);  
+      alert('Error al cerrar sesión');  
+    }  
+  });  
+
+  // ---------------------------
+  // Eliminar cuenta: lógica
+  // ---------------------------
+  deleteAccountBtn.addEventListener('click', async ()=> {
+    if (!currentUser) {
+      alert('No hay usuario autenticado.');
+      return;
+    }
+
+    // Confirmación inicial
+    const ok = confirm('¿Estás seguro que quieres eliminar tu cuenta? Esta acción es irreversible.');
+    if (!ok) return;
+
+    // Mostrar modal pidiendo contraseña
+    showModal({
+      title: 'Eliminar cuenta',
+      desc: 'Para eliminar tu cuenta escribe tu contraseña para confirmar (solo funciona para usuarios con email/contraseña).',
+      placeholder: 'Ingresa tu contraseña',
+      okText: 'Eliminar',
+      showInput: true
+    });
+
+    modalOk.onclick = async () => {
+      const pwdInput = document.getElementById('modalPasswordInput');
+      const password = pwdInput ? pwdInput.value : '';
+      if (!password) {
+        alert('Ingresa la contraseña para confirmar.');
+        return;
+      }
+
+      modalOk.disabled = true;
+      modalOk.textContent = 'Eliminando...';
+
+      try {
+        // Solo se puede reautenticar con credenciales Email/Password
+        if (!currentUser.email) {
+          throw new Error('Este usuario no tiene email asociado; no es posible reautenticar con contraseña.');
+        }
+
+        const credential = EmailAuthProvider.credential(currentUser.email, password);
+        await reauthenticateWithCredential(currentUser, credential);
+
+        // 1) Borrar datos del usuario en /users/{uid}
+        try {
+          await remove(ref(db, 'users/' + currentUser.uid));
+        } catch(e) {
+          console.warn('Error borrando nodo users:', e);
+        }
+
+        // 2) Borrar hacks/entradas donde el usuario sea el owner (revisa distintos campos)
+        try {
+          const hacksSnap = await get(ref(db, 'hacks'));
+          if (hacksSnap.exists()) {
+            const hacksObj = hacksSnap.val();
+            const deletions = [];
+            Object.entries(hacksObj).forEach(([hackId, hack]) => {
+              // revisa varios campos que podrían referenciar al usuario
+              const ownerFields = [
+                hack.createdByUid,
+                hack.ownerUid,
+                hack.ownerId,
+                hack.createdById,
+                hack.userId,
+                hack.owner,
+                hack.createdBy
+              ];
+              // si alguno coincide con el uid o con el email, lo borramos
+              const matchesUid = ownerFields.some(f => f && String(f) === String(currentUser.uid));
+              const matchesEmail = ownerFields.some(f => f && String(f) === String(currentUser.email));
+              if (matchesUid || matchesEmail) {
+                deletions.push(remove(ref(db, 'hacks/' + hackId)));
+              }
+            });
+            if (deletions.length) await Promise.allSettled(deletions);
+          }
+        } catch(e) {
+          console.warn('Error revisando/borrando hacks:', e);
+        }
+
+        // 3) Borrar otros nodos relacionados (opcional: ejemplo 'profiles' u otros)
+        try {
+          await remove(ref(db, 'profiles/' + currentUser.uid));
+        } catch(e) {
+          // ignorar si no existe
+        }
+
+        // 4) Finalmente borrar la cuenta de Auth
+        try {
+          await deleteUser(currentUser);
+        } catch(e) {
+          // si falla por token expirado o similar, informar
+          console.error('Error borrando cuenta Auth:', e);
+          throw e;
+        }
+
+        hideModal();
+        alert('Tu cuenta y datos asociados fueron eliminados. Serás redirigido.');
+        // Aun si deleteUser sucedió, intentar cerrar sesión y redirigir.
+        try { await signOut(auth); } catch(_) {}
+        window.location.href = 'index.html';
+      } catch (err) {
+        console.error('Error durante eliminación:', err);
+        // Mensajes claros según tipo de error
+        let msg = 'Ocurrió un error al intentar eliminar la cuenta.';
+        if (err && err.code) {
+          if (err.code === 'auth/wrong-password') msg = 'Contraseña incorrecta.';
+          else if (err.code === 'auth/requires-recent-login') msg = 'Necesitas iniciar sesión recientemente. Por favor vuelve a iniciar sesión e inténtalo de nuevo.';
+          else if (err.code === 'auth/user-not-found') msg = 'Usuario no encontrado.';
+          else if (err.code === 'auth/invalid-credential') msg = 'Credencial inválida.';
+        } else if (typeof err === 'string') {
+          msg = err;
+        } else if (err && err.message) {
+          msg = err.message;
+        }
+        alert(msg);
+      } finally {
+        modalOk.disabled = false;
+        modalOk.textContent = 'Eliminar';
+      }
+    };
+  });
+
+  // init render
+  renderOverviewAndResults();
+
+  // simple search binding
+  searchInput.addEventListener('input', (e)=> renderOverviewAndResults(e.target.value));
+
+</script>  
+</body>  
 </html>
