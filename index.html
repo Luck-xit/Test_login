@@ -2,15 +2,33 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login / Registro</title>
   <style>
     body {
-      margin:0; height:100vh; display:flex; justify-content:center; align-items:center;
+      margin:0;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
       font-family:Arial, sans-serif;
       background: linear-gradient(135deg,#6a11cb 0%,#2575fc 100%);
     }
-    .box { background:#fff; padding:30px; border-radius:15px; box-shadow:0 8px 25px rgba(0,0,0,0.2); width:350px; text-align:center; }
-    input, .btn { width:100%; padding:12px; margin:10px 0; border-radius:10px; font-size:16px; }
+    .box {
+      background:#fff;
+      padding:30px;
+      border-radius:15px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.2);
+      width:350px;
+      text-align:center;
+    }
+    input, .btn {
+      width:100%;
+      padding:12px;
+      margin:10px 0;
+      border-radius:10px;
+      font-size:16px;
+    }
     input { border:1px solid #ddd; }
     .btn { border:none; cursor:pointer; font-weight:bold; background:#2575fc; color:#fff; }
     .msg { font-size:14px; color:#666; margin-top:10px; }
@@ -22,16 +40,19 @@
     <input type="text" id="username" placeholder="Nombre de usuario">
     <input type="email" id="email" placeholder="Correo electrónico">
     <input type="password" id="password" placeholder="Contraseña">
-    <button id="registerBtn" class="btn">Registrarse</button>
-    <button id="loginBtn" class="btn">Iniciar Sesión</button>
+    <button id="btnRegister" class="btn">Registrarse</button>
+    <button id="btnLogin" class="btn">Iniciar Sesión</button>
     <p id="message" class="msg"></p>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } 
+      from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+    import { getDatabase, ref, set } 
+      from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
+    // Configuración Firebase (tuya)
     const firebaseConfig = {
       apiKey: "AIzaSyD9_Wps61TDrx6PVfKgzvgoQLGlIRrzSaA",
       authDomain: "weblogin-bbd5f.firebaseapp.com",
@@ -43,54 +64,66 @@
       measurementId: "G-33G9QVHQGQ"
     };
 
+    // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    const usernameInput = document.getElementById("username");
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const registerBtn = document.getElementById("registerBtn");
-    const loginBtn = document.getElementById("loginBtn");
     const msg = document.getElementById("message");
 
-    // Registro
-    registerBtn.addEventListener("click", async () => {
-      const username = usernameInput.value.trim();
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-      if (!username || !email || !password) {
-        msg.textContent = "⚠️ Llena todos los campos";
-        return;
-      }
+    // 🔹 Registro
+    async function register(username, email, password) {
       try {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        await set(ref(db, "users/" + cred.user.uid), { username, email });
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Guardar en Realtime Database → users/uid
+        await set(ref(db, 'users/' + user.uid), {
+          username: username,
+          email: email
+        });
+
         msg.textContent = "✅ Registro exitoso";
         window.location.href = "dashboard.html";
-      } catch (err) {
-        msg.textContent = "❌ " + err.message;
+      } catch (error) {
+        msg.textContent = "❌ " + error.message;
       }
-    });
+    }
 
-    // Login
-    loginBtn.addEventListener("click", async () => {
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-      if (!email || !password) {
-        msg.textContent = "⚠️ Llena todos los campos";
-        return;
-      }
+    // 🔹 Login
+    async function login(email, password) {
       try {
         await signInWithEmailAndPassword(auth, email, password);
         msg.textContent = "✅ Sesión iniciada";
         window.location.href = "dashboard.html";
-      } catch (err) {
-        msg.textContent = "❌ " + err.message;
+      } catch (error) {
+        msg.textContent = "❌ " + error.message;
       }
+    }
+
+    // Botones
+    document.getElementById("btnRegister").addEventListener("click", () => {
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      if (!username || !email || !password) {
+        msg.textContent = "⚠️ Llena todos los campos";
+        return;
+      }
+      register(username, email, password);
     });
 
-    // Ya logueado → redirige
+    document.getElementById("btnLogin").addEventListener("click", () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      if (!email || !password) {
+        msg.textContent = "⚠️ Llena todos los campos";
+        return;
+      }
+      login(email, password);
+    });
+
+    // Si ya está logueado, mandarlo al dashboard
     onAuthStateChanged(auth, (user) => {
       if (user) {
         window.location.href = "dashboard.html";
