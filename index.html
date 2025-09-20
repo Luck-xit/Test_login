@@ -15,7 +15,6 @@
       height: 100vh;
       color: #fff;
     }
-
     .container {
       background: rgba(255, 255, 255, 0.1);
       padding: 30px;
@@ -25,13 +24,11 @@
       text-align: center;
       backdrop-filter: blur(10px);
     }
-
     h2 {
       margin-bottom: 20px;
       font-size: 22px;
       color: #fff;
     }
-
     input {
       width: 90%;
       padding: 10px;
@@ -40,7 +37,6 @@
       border-radius: 6px;
       outline: none;
     }
-
     button {
       width: 100%;
       padding: 12px;
@@ -53,22 +49,18 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
-
     button:hover {
       background: #16a085;
     }
-
     .switch {
       margin-top: 15px;
       font-size: 14px;
     }
-
     .switch a {
       color: #1abc9c;
       cursor: pointer;
       text-decoration: none;
     }
-
     .hidden {
       display: none;
     }
@@ -100,7 +92,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getDatabase, ref, set } 
+    import { getDatabase, ref, set, get, child } 
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     // 🔹 Configuración Firebase
@@ -130,6 +122,9 @@
           email: email
         });
 
+        // Guardar uid para login automático
+        localStorage.setItem('uid', user.uid);
+
         alert("✅ Usuario registrado con éxito");
         window.location.href = "dashboard.html";
       } catch (error) {
@@ -140,13 +135,37 @@
     // 🔹 Login
     async function login(email, password) {
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Guardar uid para login automático
+        localStorage.setItem('uid', user.uid);
+
         alert("✅ Login exitoso");
         window.location.href = "dashboard.html";
       } catch (error) {
         alert("❌ Error: " + error.message);
       }
     }
+
+    // 🔹 Login automático
+    window.addEventListener('load', async () => {
+      const uid = localStorage.getItem('uid');
+      if (uid) {
+        const userRef = ref(db, 'users/' + uid);
+        try {
+          const snapshot = await get(userRef);
+          if (snapshot.exists()) {
+            alert("🔹 Login automático detectado");
+            window.location.href = "dashboard.html";
+          } else {
+            localStorage.removeItem('uid'); // UID inválido
+          }
+        } catch(err) {
+          console.error(err);
+        }
+      }
+    });
 
     // 🔹 Botones
     document.getElementById("btnRegister").addEventListener("click", () => {
@@ -167,7 +186,6 @@
       document.getElementById("registerBox").classList.add("hidden");
       document.getElementById("loginBox").classList.remove("hidden");
     };
-
     window.showRegister = function() {
       document.getElementById("loginBox").classList.add("hidden");
       document.getElementById("registerBox").classList.remove("hidden");
