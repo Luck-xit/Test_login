@@ -1,8 +1,6 @@
-<!doctype html>
-<html lang="es">  
-<head>  
-<meta charset="utf-8" />  
-<meta name="viewport" content="width=device-width,initial-scale=1" />  
+<!DOCTYPE html><html lang="es"><head>  
+<meta charset="utf-8">  
+<meta name="viewport" content="width=device-width,initial-scale=1">  
 <title>Dashboard - Hacks Gratis</title>  
 <link rel="icon" href="data:;base64,iVBORw0KGgo=">  
 <style>  
@@ -91,15 +89,15 @@
     color:var(--glow-yellow);
     text-shadow:0 0 8px rgba(255,235,59,0.6);
   }
-</style>  
+</style><style type="text/css">* {user-select: auto !important; -webkit-user-select: auto !important;}</style><input type="hidden" id="inject_idm_text_selection">  
 </head>  
 
 <body>  
-<!doctype html>
-<html lang="es">  
-<head>  
-<meta charset="utf-8" />  
-<meta name="viewport" content="width=device-width,initial-scale=1" />  
+
+  
+  
+<meta charset="utf-8">  
+<meta name="viewport" content="width=device-width,initial-scale=1">  
 <title>Dashboard - Hacks Gratis</title>  
 <link rel="icon" href="data:;base64,iVBORw0KGgo=">  
 <style>  
@@ -307,8 +305,8 @@ footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
 }
 </style>
 
-</head>  
-<body>  
+  
+  
   <header>  
     <div class="brand">  
       <div class="logo">LM</div>  
@@ -317,7 +315,7 @@ footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
         <div style="font-size:12px;color:var(--muted)">Panel público para usuarios autenticados</div>  
       </div>  
     </div>  <div class="controls">  
-  <input id="searchInput" class="search" placeholder="Buscar por nombre del juego..." />  
+  <input id="searchInput" class="search" placeholder="Buscar por nombre del juego...">  
   <div class="stats">  
     <div class="stat" id="totalHacks">Hacks: 0</div>  
     <div class="stat" id="totalUsers">Usuarios: —</div>  
@@ -504,19 +502,30 @@ footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
     renderGroupedResults(grouped);  
   }  
   
-  function renderCategoryCards(catCounts) {  
-    categoryCards.innerHTML = '';  
-    if (!catCounts || Object.keys(catCounts).length===0) {  
-      categoryCards.innerHTML = `<div class="card">Sin categorías</div>`;  
-      return;  
-    }  
-    Object.entries(catCounts).forEach(([cat, count])=>{  
-      const el = document.createElement('div');  
-      el.className = 'card';  
-      el.innerHTML = `<div style="font-weight:700">${cat}</div><div style="color:var(--muted);margin-top:6px">${count} hacks</div>`;  
-      categoryCards.appendChild(el);  
-    });  
-  }  
+  function renderCategoryCards(catCounts) {        
+  categoryCards.innerHTML = '';        
+  if (!catCounts || Object.keys(catCounts).length===0) {        
+    categoryCards.innerHTML = `<div class="card">Sin categorías</div>`;        
+    return;        
+  }        
+
+  // Convertimos a array [ [categoria, count], ... ]
+  let entries = Object.entries(catCounts);
+
+  // Mezclamos aleatoriamente
+  entries = entries.sort(() => Math.random() - 0.5);
+
+  // Tomamos solo 3
+  entries.slice(0, 3).forEach(([cat, count]) => {        
+    const el = document.createElement('div');        
+    el.className = 'card';        
+    el.innerHTML = `
+      <div style="font-weight:700">${cat}</div>
+      <div style="color:var(--muted);margin-top:6px">${count} hacks</div>
+    `;        
+    categoryCards.appendChild(el);        
+  });        
+}
   
   function renderGroupedResults(grouped) {  
     resultsContainer.innerHTML = '';  
@@ -710,5 +719,6 @@ footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
   searchInput.addEventListener('input', (e)=> renderOverviewAndResults(e.target.value));
 
 </script>  
-</body>  
-</html>
+  
+
+</body></html>
